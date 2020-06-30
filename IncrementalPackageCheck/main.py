@@ -53,10 +53,10 @@ if __name__ == '__main__':
     parser.add_argument('-O', '--out-result-file', help="out result file", type=str, required=True)
     args = parser.parse_args()
 
-    print('build id: '+str(args.baseline_buildid))
-    print('input file: '+args.input_file)
-    print('input aba file: '+args.input_aba_file)
-    print('out result file path: '+args.out_result_file)
+    # print('build id: '+str(args.baseline_buildid))
+    # print('input file: '+args.input_file)
+    # print('input aba file: '+args.input_aba_file)
+    # print('out result file path: '+args.out_result_file)
 
     qb_baseline = QB(args.baseline_buildid, args.input_aba_file)
     input_file = args.input_file

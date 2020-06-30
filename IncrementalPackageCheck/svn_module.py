@@ -24,7 +24,7 @@ class SVN:
     # 获取提交日志
     def __load_commit(self):
         for log in SVN_CLIENT.log_default(revision_from=self.revision_from, revision_to=self.revision_to, changelist=True):
-            # print 'SVN commit %s' % log.revision
+            # print('SVN commit %s' % log.revision)
             self.__save_issue_commit(log)
         # 保存结束版本号
         if self.issue_commit and self.revision_to is None:
