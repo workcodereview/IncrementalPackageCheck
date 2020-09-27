@@ -72,7 +72,7 @@ package-bin:
     - master
   needs: ["build-linux", "build-mac", "build-windows"]
   script:
-    - ls bin
+    - ls IncrementalPackageCheck/bin
   artifacts:
     name: all
     paths:
