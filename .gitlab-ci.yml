@@ -17,7 +17,7 @@ build-linux:
     - cd IncrementalPackageCheck
     - mkdir -p bin/linux
 
-    - pyinstaller -F IncrementalPackageCheck/testagain.py
+    - pyinstaller -F testagain.py
     - dist/testagain -h
     - cp dist/testagain bin/linux/testagain
 
@@ -37,7 +37,7 @@ build-mac:
     - cd IncrementalPackageCheck
     - mkdir -p bin/mac
 
-    - pyinstaller -F IncrementalPackageCheck/testagain.py
+    - pyinstaller -F testagain.py
     - dist/testagain -h
     - cp dist/testagain bin/mac/testagain
 
@@ -57,7 +57,7 @@ build-windows:
     - cd IncrementalPackageCheck
     - mkdir -p bin/windows
 
-    - pyinstaller -F IncrementalPackageCheck/testagain.py
+    - pyinstaller -F testagain.py
     - dist/testagain -h
     - cp dist/testagain.exe bin/windows/testagain.exe
 
