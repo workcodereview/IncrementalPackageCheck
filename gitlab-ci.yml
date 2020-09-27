@@ -1,0 +1,80 @@
+.pip_install:
+  before_script:
+    - pip install requests
+
+stages:
+  - build
+  - package
+
+build-linux:
+  stage: build
+  tags:
+    - centos8 python3
+  only:
+    - master
+  extends: .pip_install
+  script:
+    - mkdir -p bin/linux
+
+    - pyinstaller -F IncrementalPackageCheck/testagain.py
+    - dist/testagain -h
+    - cp dist/testagain bin/linux/testagain
+
+  artifacts:
+    name: linux
+    paths:
+      - bin/linux
+
+build-mac:
+  stage: build
+  tags:
+    - mac python3
+  only:
+    - master
+  extends: .pip_install
+  script:
+    - mkdir -p bin/mac
+
+    - pyinstaller -F IncrementalPackageCheck/testagain.py
+    - dist/testagain -h
+    - cp dist/testagain bin/mac/testagain
+
+  artifacts:
+    name: mac
+    paths:
+      - bin/mac
+
+build-windows:
+  stage: build
+  tags:
+    - windows10 python3
+  only:
+    - master
+  extends: .pip_install
+  script:
+    - mkdir -p bin/windows
+
+    - pyinstaller -F IncrementalPackageCheck/testagain.py
+    - dist/testagain -h
+    - cp dist/testagain.exe bin/windows/testagain.exe
+
+
+  artifacts:
+    name: windows
+    paths:
+      - bin/windows
+
+package-bin:
+  stage: package
+  tags:
+    - centos8 python3
+  only:
+    - master
+  needs: ["build-linux", "build-mac", "build-windows"]
+  script:
+    - ls bin
+  artifacts:
+    name: all
+    paths:
+      - bin
+
