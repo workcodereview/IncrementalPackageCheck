@@ -1,6 +1,5 @@
 # coding: utf8
 
-import time
 from Jira_model import JX3M
 from analy_platform_model import Analy_Plat
 from data_config import jx3m_page_Platform
