@@ -23,7 +23,7 @@ build-linux:
   artifacts:
     name: linux
     paths:
-      - bin/linux
+      - IncrementalPackageCheck/bin/linux
 
 build-mac:
   stage: build
@@ -42,7 +42,7 @@ build-mac:
   artifacts:
     name: mac
     paths:
-      - bin/mac
+      - IncrementalPackageCheck/bin/mac
 
 build-windows:
   stage: build
@@ -62,7 +62,7 @@ build-windows:
   artifacts:
     name: windows
     paths:
-      - bin/windows
+      - IncrementalPackageCheck/bin/windows
 
 package-bin:
   stage: package
