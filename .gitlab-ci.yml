@@ -18,7 +18,6 @@ build-linux:
     - mkdir -p bin/linux
 
     - pyinstaller -F testagain.py
-    - dist/testagain -h
     - cp dist/testagain bin/linux/testagain
 
   artifacts:
@@ -38,7 +37,6 @@ build-mac:
     - mkdir -p bin/mac
 
     - pyinstaller -F testagain.py
-    - dist/testagain -h
     - cp dist/testagain bin/mac/testagain
 
   artifacts:
@@ -58,7 +56,6 @@ build-windows:
     - mkdir -p bin/windows
 
     - pyinstaller -F testagain.py
-    - dist/testagain -h
     - cp dist/testagain.exe bin/windows/testagain.exe
 
 
