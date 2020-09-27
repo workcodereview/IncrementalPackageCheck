@@ -2,7 +2,6 @@
 
 # 向平台推送更新包信息  this model success
 import re
-import json
 import requests
 from data_config import jx3m_page_Platform
 
@@ -78,7 +77,7 @@ class JX3M:
         count = 1
         for single_number in self._single_number_list:
             count = count + 1
-            if count == 10:
+            if count == 7:
                 break
             if single_number not in asset_path_dict:
                 asset_path_dict[single_number] = {}
@@ -86,6 +85,8 @@ class JX3M:
                 asset_path_dict[single_number]['trunk'] = []
             if 'txpublish' not in asset_path_dict[single_number]:
                 asset_path_dict[single_number]['txpublish'] = []
+            if 'tx_publish_hotfix' not in asset_path_dict[single_number]:
+                asset_path_dict[single_number]['tx_publish_hotfix'] = []
 
             data = self.get_log(single_number)
             if data and data['comments']:
@@ -97,16 +98,23 @@ class JX3M:
                                 asset_path = value.strip()
                                 if asset_path not in asset_path_dict[single_number]['trunk']:
                                     asset_path_dict[single_number]['trunk'].append(asset_path)
+
                             if '/branches-rel/tx_publish' in value and 'Assets' in value and not value.endswith('.meta'):
                                 asset_path = value.strip()
                                 if asset_path not in asset_path_dict[single_number]['txpublish']:
                                     asset_path_dict[single_number]['txpublish'].append(asset_path)
+
+                            if '/branches-rel/tx_publish_hotfix' in value and 'Assets' in value and not value.endswith('.meta'):
+                                asset_path = value.strip()
+                                if asset_path not in asset_path_dict[single_number]['tx_publish_hotfix']:
+                                    asset_path_dict[single_number]['tx_publish_hotfix'].append(asset_path)
+
         return asset_path_dict
 
     # 向平台提交单号信息
     def commit_single_number_assetinfo(self,single_number, content):
         print(['[Jira]向平台上传当前提交单所有资源信息,当前提交单为:',single_number])
         print('[Jira]平台数据上传路径:',self._upload_url.format(single_number))
-        r = requests.post(self._upload_url.format(single_number), json=content)
+        r = requests.post(self._upload_url.format(single_number), json={'data': content})
         r.json()
 
