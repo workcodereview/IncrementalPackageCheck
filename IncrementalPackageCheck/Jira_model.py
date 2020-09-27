@@ -77,8 +77,7 @@ class JX3M:
         count = 1
         for single_number in self._single_number_list:
             count = count + 1
-            if count == 7:
-                break
+
             if single_number not in asset_path_dict:
                 asset_path_dict[single_number] = {}
             if 'trunk' not in asset_path_dict[single_number]:
