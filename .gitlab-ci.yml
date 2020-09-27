@@ -76,5 +76,5 @@ package-bin:
   artifacts:
     name: all
     paths:
-      - bin
+      - IncrementalPackageCheck/bin
 
