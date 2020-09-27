@@ -14,6 +14,7 @@ build-linux:
     - master
   extends: .pip_install
   script:
+    - cd IncrementalPackageCheck
     - mkdir -p bin/linux
 
     - pyinstaller -F IncrementalPackageCheck/testagain.py
@@ -33,6 +34,7 @@ build-mac:
     - master
   extends: .pip_install
   script:
+    - cd IncrementalPackageCheck
     - mkdir -p bin/mac
 
     - pyinstaller -F IncrementalPackageCheck/testagain.py
@@ -52,6 +54,7 @@ build-windows:
     - master
   extends: .pip_install
   script:
+    - cd IncrementalPackageCheck
     - mkdir -p bin/windows
 
     - pyinstaller -F IncrementalPackageCheck/testagain.py
