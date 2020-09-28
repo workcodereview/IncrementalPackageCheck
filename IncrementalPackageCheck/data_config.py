@@ -14,6 +14,11 @@ jx3m_page_Platform = {
     'URL_SEARCH': 'http://jx3m.rdev.kingsoft.net:8881/rest/api/2/search',
     'revison_url': 'http://10.11.10.86/resource/package/false/{0}/{1}/tab',
     'bundle_url': 'http://10.11.10.86/resource/package/false/{0}/{1}/package_list/files/other/{2}///',
-    'upload_url': 'http://jx3mtestup.rdev.kingsoft.net/upload/sync/update_package_info/{0}'
+    'upload_url': 'http://jx3mtestup.rdev.kingsoft.net/upload/sync/update_package_info/{0}',
+    'details_url': 'http://10.11.10.86/jira/size/{0}/true',
+    'txpublish_url': 'http://10.11.10.86/jira/size/{0}/false',
+    'color_green': '{{color:#14892c}}{0}{{color}}',
+    'color_orige': '{{color:#f79232}}{0}{{color}}',
+    'total_single_number_url': 'http://jx3m.rdev.kingsoft.net:8881/rest/api/2/project/JX3M/versions'
 }
 
