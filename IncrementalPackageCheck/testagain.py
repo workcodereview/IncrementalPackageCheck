@@ -105,7 +105,7 @@ def concat_preview_pakcage(svn_info):
     return message
 
 def merge_content(result, root, platform):
-    content = ' '
+    content = ''
     if not result:
         return content
 
@@ -130,11 +130,11 @@ def merge_content(result, root, platform):
 
         root_platform = root + ' ' +platform
         if root == '/trunk':
-            print('[Test]主干信息合并展示')
+            # print('[Test]主干信息合并展示')
             mesage_temp = color_message.format('版本包:') + '['+new_message['svn'] + '('+ str(package_size)+'MB)|' + new_message['revison_url'] + ']'
             content = '|'+root_platform+'|'+mesage_temp+'|' + ' |' + preview_message + ' |\n'
         else:
-            print('[Test]分支或者热更信息合并展示')
+            # print('[Test]分支或者热更信息合并展示')
             mesage_temp = color_message.format('版本包:') + '[' + new_message['svn'] + '(' + str(package_size) + 'MB)|' + new_message['revison_url'] + ']'
             content = '|' + root_platform + ' | |'+ mesage_temp + '|' + preview_message + ' |\n'
     return content
@@ -164,11 +164,11 @@ if __name__ == '__main__':
     begin_time = time.time()
     for single_number, root_info in single_number_assets.items():
         print('[Test]当前正在分析第' + str(count) + '个提交单,单号为:' + single_number)
+        # if count == 6:
+        #     break
         # 获取当前单的所有信息 文件对应bundle 或者 没有找到bundle的文件列表
         result_total = analy_single_number(trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle, root_info)
-        print('result_total: ',str(result_total))
-        # for index, file_message in enumerate(result_total):
-        #     print('file_message: ',str(file_message))
+        # print('result_total: ',str(result_total))
 
         is_txpublish_exit = False
         is_total_exit = False
@@ -183,6 +183,7 @@ if __name__ == '__main__':
         trunk_message = ''
         txpublish_message = ''
         hotfixmessage = ''
+        finall_content = ''
         color_content = '注意：[版本包]绿色字体表示此单所提交的文件均在对应的版本包中 橙色字体表示此单某些文件不在此版本包中,相对应预测包信息可大概估计文件下一版本打包时会影响的bundle大小'
 
         if single_number_assets[single_number]['trunk']:
@@ -190,7 +191,6 @@ if __name__ == '__main__':
             trunk_message += check_out_index(content_message, merge_content(result_total, '/trunk', 'iOS'))
 
         if single_number_assets[single_number]['txpublish']:
-            is_txpublish_exit = True
             txpublish_message += check_out_index(content_message, merge_content(result_total, '/branches-rel/tx_publish', 'Android'))
             txpublish_message += check_out_index(content_message, merge_content(result_total, '/branches-rel/tx_publish', 'iOS'))
 
@@ -211,7 +211,11 @@ if __name__ == '__main__':
                 finall_content = item_tile + trunk_message+txpublish_message+hotfixmessage+txpublish_title
             finall_content = finall_content +'\n' + color_content
             print('finall_content: ',finall_content)
-           #  jx3m.update_comment(single_number,finall_content)
+            jx3m.update_comment(single_number,finall_content)
+        else:
+            finall_content = '*更新包大小预测结果*\n'+'此单当前文件暂未有打包信息,等待后续版本包信息再进行预测\n'
+            jx3m.update_comment(single_number, finall_content)
+
         count = count + 1
     print('提交单数量：',str(count))
     print('[Test]analy single number end: ', str(begin_time - time.time()))
