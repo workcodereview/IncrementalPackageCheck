@@ -39,7 +39,7 @@ def analy_single_number(trunk_bundle, txpublish_bundle, hotfix_bundle, root_mess
 
     for root_type, file_list in root_message.items():
         for file in file_list:
-            print('[Test]当前分析的文件为: ',file)
+            # print('[Test]当前分析的文件为: ',file)
             android_result = {}
             ios_result = {}
 
@@ -60,10 +60,10 @@ def analy_single_number(trunk_bundle, txpublish_bundle, hotfix_bundle, root_mess
                 ios_result = check_asset_bundle(hotfix_bundle['iOS'], file, root_type, 'iOS')
 
             if android_result:
-                print('[Test]Android 有返回数据',str(android_result))
+                # print('[Test]Android 有返回数据',str(android_result))
                 single_number_result[file]['Android'] = android_result
             if ios_result:
-                print('[Test]iOS 有返回数据',str(ios_result))
+                # print('[Test]iOS 有返回数据',str(ios_result))
                 single_number_result[file]['iOS'] = ios_result
 
     return_result.append(single_number_result)
@@ -88,8 +88,6 @@ def find_max_revison(result, root_type, plat):
     if max_svn != 0:
         svn_list.pop(str(max_svn))
     return max_new_message, svn_list
-
-
 
 # 预测的涉及的包的信息展示
 def concat_preview_pakcage(svn_info):
@@ -148,23 +146,19 @@ def check_out_index(first_content, second_content):
 if __name__ == '__main__':
 
     # 取aba_bundle信息
-    print('[Test]get bundle info begin:',time.time())
     analy = Analy_Plat()
+    print('[Test]bundle信息获取完成')
     # 主干获取bundle测试通过
     trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle = analy.get_aba_bundle_dict()
-    print('[Test]get bundle info end:', time.time())
     jx3m = JX3M()
-    # single_number_assets = jx3m.get_single_number_assets()
     single_number_assets = jx3m.get_single_number_assets()
-    print('[Test]get single number info end:', time.time())
-    print('单号长度: ',len(single_number_assets))
+    print('[Test]单号长度: ',len(single_number_assets))
 
     count = 1
-
     begin_time = time.time()
     for single_number, root_info in single_number_assets.items():
         print('[Test]当前正在分析第' + str(count) + '个提交单,单号为:' + single_number)
-        # if count == 6:
+        # if count == 11:
         #     break
         # 获取当前单的所有信息 文件对应bundle 或者 没有找到bundle的文件列表
         result_total = analy_single_number(trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle, root_info)
@@ -210,7 +204,7 @@ if __name__ == '__main__':
             if is_txpublish_exit:
                 finall_content = item_tile + trunk_message+txpublish_message+hotfixmessage+txpublish_title
             finall_content = finall_content +'\n' + color_content
-            print('finall_content: ',finall_content)
+            # print('finall_content: ',finall_content)
             jx3m.update_comment(single_number,finall_content)
         else:
             finall_content = '*更新包大小预测结果*\n'+'此单当前文件暂未有打包信息,等待后续版本包信息再进行预测\n'

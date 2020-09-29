@@ -74,26 +74,27 @@ class JX3M:
     # 此单已存在备注 更新备注
     def update_comment(self, single_number, comment):
         # 获取当前信息本单的log信息
-        content_id = {}
+        content_id = ''
+        body_value = ''
+        is_exit = False
+
         single_number_message = self.get_log(single_number)
         for value in single_number_message['comments']:
             if '更新包大小预测结果' in value['body']:
-                content_id[value['id']] = value['body']
+                content_id = value['id']
+                body_value = value['body']
+                is_exit = True
+                break
 
-        # if content_id:
-        #     for item_id, body in content_id.items():
-        #         requests.delete(self._jx3m_url.format(single_number) + '/' + item_id,
-        #                         auth=(self._username, self._password))
-
-        if content_id:
-            print('[Jira]当前存在更新包预测备注信息,单号为:',single_number)
-            for item_id, body in content_id.items():
-                if body != comment:
-                    print('[Jira]检测到需要更新当前预测备注信息')
-                    requests.delete(self._jx3m_url.format(single_number) + '/' + item_id, auth=(self._username, self._password))
-                    self.commit_content(single_number, comment)
+        if is_exit:
+            if body_value != comment:
+                print('[Jira]当前存在更新包预测信息并且需要更新信息')
+                requests.delete(self._jx3m_url.format(single_number) + '/' + content_id, auth=(self._username, self._password))
+                self.commit_content(single_number, comment)
+            else:
+                print('[Jira]当前存在更新包预测信息但是并不需要更新信息')
         else:
-            print('[Jira]当前不存在更新包预测备注信息,提交备注信息,单号为:',single_number)
+            print('[Jira]第一次提交更新包预测信息')
             self.commit_content(single_number, comment)
 
     # 获取过去十小时变动单号所包含的资源文件路径 包含主干和分支
@@ -136,9 +137,8 @@ class JX3M:
 
     # 向平台提交单号信息
     def commit_single_number_assetinfo(self,single_number, content):
-        print(['[Jira]向平台上传当前提交单所有资源信息,当前提交单为:',single_number])
+        print('[Jira]向平台上传当前提交单所有资源信息,当前提交单为:',single_number)
         print('[Jira]平台数据上传路径:',self._upload_url.format(single_number))
         r = requests.post(self._upload_url.format(single_number), json={'data': content})
-        print('r.content: ',r.content)
-        # r.json()
+
 
