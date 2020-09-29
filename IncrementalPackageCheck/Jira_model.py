@@ -73,29 +73,27 @@ class JX3M:
 
     # 此单已存在备注 更新备注
     def update_comment(self, single_number, comment):
-        print('[Jira]更新单号更新包预测信息,当前单号为:',single_number )
         # 获取当前信息本单的log信息
+        content_id = {}
         single_number_message = self.get_log(single_number)
-        content_id = 0
-        is_exit = False
-        body_value = {}
-
         for value in single_number_message['comments']:
-            if '更新包大小预测结果' not in value['body']:
-                continue
             if '更新包大小预测结果' in value['body']:
-                is_exit = True
-                content_id = value['id']
-                body_value = value
-                break
+                content_id[value['id']] = value['body']
 
-        if is_exit:
-            if body_value['body'] != comment: # 如果传入的结果跟现有的不一致 那么删除重新添加
-                print('[Jira] 有新的备注信息,更新备注信息')
-                requests.delete(self._jx3m_url.format(single_number) + '/'+ content_id,auth=(self._username, self._password))
-                self.commit_content(single_number, comment)
-        else: # 从来没有过的 也添加
-            print('[Jira] 不存在更新包备注信息,添加信息')
+        # if content_id:
+        #     for item_id, body in content_id.items():
+        #         requests.delete(self._jx3m_url.format(single_number) + '/' + item_id,
+        #                         auth=(self._username, self._password))
+
+        if content_id:
+            print('[Jira]当前存在更新包预测备注信息,单号为:',single_number)
+            for item_id, body in content_id.items():
+                if body != comment:
+                    print('[Jira]检测到需要更新当前预测备注信息')
+                    requests.delete(self._jx3m_url.format(single_number) + '/' + item_id, auth=(self._username, self._password))
+                    self.commit_content(single_number, comment)
+        else:
+            print('[Jira]当前不存在更新包预测备注信息,提交备注信息,单号为:',single_number)
             self.commit_content(single_number, comment)
 
     # 获取过去十小时变动单号所包含的资源文件路径 包含主干和分支
