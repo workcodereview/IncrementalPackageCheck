@@ -74,25 +74,25 @@ class JX3M:
     # 此单已存在备注 更新备注
     def update_comment(self, single_number, comment):
         # 获取当前信息本单的log信息
-        content_id = ''
-        body_value = ''
-        is_exit = False
+        content_id = {}
 
         single_number_message = self.get_log(single_number)
         for value in single_number_message['comments']:
             if '更新包大小预测结果' in value['body']:
-                content_id = value['id']
-                body_value = value['body']
-                is_exit = True
-                break
+                content_id[value['id']] = value['body']
 
-        if is_exit:
-            if body_value != comment:
-                print('[Jira]当前存在更新包预测信息并且需要更新信息')
-                requests.delete(self._jx3m_url.format(single_number) + '/' + content_id, auth=(self._username, self._password))
-                self.commit_content(single_number, comment)
-            else:
-                print('[Jira]当前存在更新包预测信息但是并不需要更新信息')
+        if len(content_id) == 1:
+            for item_id, body in content_id.items():
+                if body != comment:
+                    print('[Jira]有新的更新消息,需要删除当前更新包信息')
+                    requests.delete(self._jx3m_url.format(single_number) + '/' + item_id, auth=(self._username, self._password))
+                    self.commit_content(single_number, comment)
+                else:
+                    print('[Jira]不需要更新当前更新包信息')
+        elif len(content_id) > 1:
+            for item_id, body in content_id.items():
+                requests.delete(self._jx3m_url.format(single_number) + '/' + item_id, auth=(self._username, self._password))
+            self.commit_content(single_number, comment)
         else:
             print('[Jira]第一次提交更新包预测信息')
             self.commit_content(single_number, comment)
