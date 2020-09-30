@@ -52,15 +52,17 @@ class JX3M:
                     single_number_list.append(value['key'])
             return single_number_list
 
-
-
-        # return version_message
-
     # 通过单获取日志 截取资源路径
     def get_log(self, single_number):
         # print('[Jira]get_log单号url为: ',self._jx3m_url.format(single_number))
         r = requests.get(self._jx3m_url.format(single_number), auth=(self._username, self._password))
         return r.json()
+
+    def delete_log(self,single_number, item_id):
+        print('[Jira]delete_log删除旧的备注信息')
+        r = requests.delete(self._jx3m_url.format(single_number) + '/' + item_id, auth=(self._username, self._password))
+        if r.status_code != 204:
+            self.delete_log(single_number, item_id)
 
     # 此单无备注 第一次向单添加备注
     def commit_content(self,single_number,content):
@@ -85,13 +87,13 @@ class JX3M:
             for item_id, body in content_id.items():
                 if body != comment:
                     print('[Jira]有新的更新消息,需要删除当前更新包信息')
-                    requests.delete(self._jx3m_url.format(single_number) + '/' + item_id, auth=(self._username, self._password))
+                    self.delete_log(single_number, item_id)
                     self.commit_content(single_number, comment)
                 else:
                     print('[Jira]不需要更新当前更新包信息')
         elif len(content_id) > 1:
             for item_id, body in content_id.items():
-                requests.delete(self._jx3m_url.format(single_number) + '/' + item_id, auth=(self._username, self._password))
+                self.delete_log(single_number, item_id)
             self.commit_content(single_number, comment)
         else:
             print('[Jira]第一次提交更新包预测信息')
