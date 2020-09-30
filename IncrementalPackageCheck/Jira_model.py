@@ -83,18 +83,21 @@ class JX3M:
             if '更新包大小预测结果' in value['body']:
                 content_id[value['id']] = value['body']
 
-        if len(content_id) == 1:
-            for item_id, body in content_id.items():
-                if body != comment:
-                    print('[Jira]有新的更新消息,需要删除当前更新包信息')
+        if content_id:
+            if len(content_id) == 1:
+                for item_id, body in content_id.items():
+                    if body != comment:
+                        print('[Jira]单条备注信息存在,有新的更新消息,需要删除当前更新包信息')
+                        self.delete_log(single_number, item_id)
+                        self.commit_content(single_number, comment)
+                    else:
+                        print('[Jira]不需要更新当前更新包信息')
+
+            elif len(content_id) > 1:
+                print('[Jira]多条备注信息存在,有新的更新消息,需要删除当前更新包信息')
+                for item_id, body in content_id.items():
                     self.delete_log(single_number, item_id)
-                    self.commit_content(single_number, comment)
-                else:
-                    print('[Jira]不需要更新当前更新包信息')
-        elif len(content_id) > 1:
-            for item_id, body in content_id.items():
-                self.delete_log(single_number, item_id)
-            self.commit_content(single_number, comment)
+                self.commit_content(single_number, comment)
         else:
             print('[Jira]第一次提交更新包预测信息')
             self.commit_content(single_number, comment)
