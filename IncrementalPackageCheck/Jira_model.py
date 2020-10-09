@@ -19,7 +19,7 @@ class JX3M:
         # print('[Jira]获取到的参数路径为:', self._jx3m_url, self._upload_url, self._URL_SEARCH)
 
     def __reload(self):
-        self._version_info = self.get_latest_version()
+        self.version_info = self.get_latest_version()
         self._single_number_list = self.get_single_number_list()
 
 
@@ -42,9 +42,9 @@ class JX3M:
     # 获取指定版本的提交单号
     def get_single_number_list(self):
         single_number_list = []
-        if self._version_info['version']:
-            print('[Jira]获取到最新要发的版本号: ',self._version_info['version'])
-            r = requests.get(self._URL_SEARCH, params={'jql': 'type = 提交单 and fixVersion = ' + self._version_info['version'], 'maxResults': 1000},
+        if self.version_info['version']:
+            print('[Jira]获取到最新要发的版本号: ',self.version_info['version'])
+            r = requests.get(self._URL_SEARCH, params={'jql': 'type = 提交单 and fixVersion = ' + self.version_info['version'], 'maxResults': 1000},
                          auth=(self._username, self._password))
             data = r.json()
             if data and data['issues']:
@@ -144,6 +144,6 @@ class JX3M:
     def commit_single_number_assetinfo(self,single_number, content):
         print('[Jira]向平台上传当前提交单所有资源信息,当前提交单为:',single_number)
         print('[Jira]平台数据上传路径:',self._upload_url.format(single_number))
-        r = requests.post(self._upload_url.format(single_number), json={'data': content})
+        r = requests.post(self._upload_url.format(single_number), json=content)
 
 

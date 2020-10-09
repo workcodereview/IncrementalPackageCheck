@@ -34,7 +34,7 @@ def check_asset_bundle(svn_info, asset_path, root_type, platform):
 
 # 分析查找每个单的信息 返回整个单所有文件的结果
 def analy_single_number(trunk_bundle, txpublish_bundle, hotfix_bundle, root_message):
-    return_result = []
+    return_result = {'issueid': '', 'version': '', 'total': [], 'data': {}}
     single_number_result = {}
 
     for root_type, file_list in root_message.items():
@@ -46,15 +46,16 @@ def analy_single_number(trunk_bundle, txpublish_bundle, hotfix_bundle, root_mess
             if file not in single_number_result:
                 single_number_result[file] = {}
 
+
             if root_type == 'trunk':
                 android_result = check_asset_bundle(trunk_bundle['Android'], file, root_type, 'Android')
                 ios_result = check_asset_bundle(trunk_bundle['iOS'], file, root_type, 'iOS')
             elif root_type == 'txpublish':
                 android_result = check_asset_bundle(txpublish_bundle['Android'], file, root_type, 'Android')
-                ios_result = check_asset_bundle(txpublish_bundle['iOS'], file, file, 'iOS')
-                if not android_result and not ios_result:
-                    android_result = check_asset_bundle(txpublish_bundle['Android'], file, root_type, 'Android')
-                    ios_result = check_asset_bundle(txpublish_bundle['iOS'], file, root_type, 'iOS')
+                ios_result = check_asset_bundle(txpublish_bundle['iOS'], file, root_type, 'iOS')
+                # if not android_result and not ios_result:
+                #     android_result = check_asset_bundle(trunk_bundle['Android'], file, root_type, 'Android')
+                #     ios_result = check_asset_bundle(trunk_bundle['iOS'], file, root_type, 'iOS')
             elif root_type == 'tx_publish_hotfix':
                 android_result = check_asset_bundle(hotfix_bundle['Android'], file, root_type, 'Android')
                 ios_result = check_asset_bundle(hotfix_bundle['iOS'], file, root_type, 'iOS')
@@ -66,8 +67,7 @@ def analy_single_number(trunk_bundle, txpublish_bundle, hotfix_bundle, root_mess
                 # print('[Test]iOS 有返回数据',str(ios_result))
                 single_number_result[file]['iOS'] = ios_result
 
-    return_result.append(single_number_result)
-
+    return_result['data'] = single_number_result
     return return_result
 
 # 指定root 平台 获取最新的包版本 在返回所有的版本包 便于展示
@@ -76,18 +76,77 @@ def find_max_revison(result, root_type, plat):
     max_new_message = {}
     svn_list = {}
 
-    for file_message in result:
-        for path, platform_info in file_message.items():
-            if root_type in path:
-                for plat_form, bundle_info in platform_info.items():
-                    if plat_form == plat:
-                        if max_svn < int(bundle_info['svn']):
-                            max_svn = int(bundle_info['svn'])
-                            max_new_message = bundle_info
-                            svn_list[bundle_info['svn']] = bundle_info['revison_url'] # 保存所有小于最新的包版本
+    for path, platform_info in result['data'].items():
+        if root_type in path:
+            for plat_form, bundle_info in platform_info.items():
+                if plat_form == plat:
+                    if max_svn < int(bundle_info['svn']):
+                        max_svn = int(bundle_info['svn'])
+                        max_new_message = bundle_info
+                        if bundle_info['svn'] not in svn_list:
+                            svn_list[bundle_info['svn']] = {}
+                        svn_list[bundle_info['svn']] = {'revison_url': bundle_info['revison_url'], 'pakage_size': bundle_info['package_size'] }  # 保存所有小于最新的包版本
     if max_svn != 0:
         svn_list.pop(str(max_svn))
+
     return max_new_message, svn_list
+
+# 计算大小
+def calc_pakcage_size(size):
+    package_size = size
+    if 'MB' in package_size:
+        package_size = package_size.replace('MB', '')
+        package_size = float(package_size)*1024*1024
+    elif 'KB' in package_size:
+        package_size = float(package_size.replace('MB', ''))*1024
+    return str(package_size)
+
+# 组织返回结果格式
+def Encapsulation_result(platform_message, svn_list_info, platform, root):
+    # print('platform_message: ',str(platform_message))
+    # print('svn_list_info:',str(svn_list_info))
+    package_message = {}
+    previdict_message = []
+
+    if platform_message:
+        package_message['path'] = platform_message['root']
+        package_message['platform'] = platform
+        if root == '/trunk':
+            if 'install_info' not in package_message:
+                package_message['install_info'] = {}
+            package_message['install_info']['svn'] = platform_message['svn']
+            package_message['install_info']['revison_url'] = platform_message['revison_url']
+            package_message['install_info']['package_size'] = calc_pakcage_size(platform_message['package_size'])
+        elif root == '/branches-rel/tx_publish' or root == '/branches-rel/tx_publish_hotfix':
+            if 'update_info' not in package_message:
+                package_message['update_info'] = {}
+            package_message['update_info']['svn'] = platform_message['svn']
+            package_message['update_info']['revison_url'] = platform_message['revison_url']
+            package_message['update_info']['package_size'] = calc_pakcage_size(platform_message['package_size'])
+
+
+    if svn_list_info:
+        temp_dict = {}
+        for svn, svn_info in svn_list_info:
+            temp_dict['svn'] = svn
+            temp_dict['revison_url'] = svn_info['revison_url']
+            temp_dict['package_size'] = calc_pakcage_size(svn_info['package_size'])
+            previdict_message.append(temp_dict)
+            temp_dict.clear()
+
+        if 'forcast_info' not in package_message:
+            package_message['forcast_info'] = {}
+            package_message['forcast_info'] = previdict_message
+
+    return package_message
+
+# 组织安装包 更新包格式
+def comcat_result(result,root, plat):
+    message, svn_info = find_max_revison(result_total, root, plat)
+    temp_result = Encapsulation_result(message, svn_info, plat, root)
+    if temp_result:
+        result['total'].append(temp_result)
+    return result
 
 # 预测的涉及的包的信息展示
 def concat_preview_pakcage(svn_info):
@@ -156,64 +215,28 @@ if __name__ == '__main__':
 
     count = 1
     begin_time = time.time()
+    # print('txpublish_path_to_bundle: ',str(txpublish_path_to_bundle))
     for single_number, root_info in single_number_assets.items():
         print('[Test]当前正在分析第' + str(count) + '个提交单,单号为:' + single_number)
-        # if count == 11:
-        #     break
         # 获取当前单的所有信息 文件对应bundle 或者 没有找到bundle的文件列表
         result_total = analy_single_number(trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle, root_info)
-        # print('result_total: ',str(result_total))
-
-        is_txpublish_exit = False
-        is_total_exit = False
-
-        details_url = jx3m_page_Platform['details_url'].format(single_number)
-        txpublish_url = jx3m_page_Platform['txpublish_url'].format(single_number)
-        item_tile = '*更新包大小预测结果[[详情|' + details_url + ']]*\n|分类|安装包|更新包|预测包|\n'
-        txpublish_title = '[此单分支文件bundle包大小预测详细信息点击此链接|' + txpublish_url + ']'
-
-        # 获取主干 分支 hotfix android ios 是否有最新版本出来
-        content_message = ''
-        trunk_message = ''
-        txpublish_message = ''
-        hotfixmessage = ''
-        finall_content = ''
-        color_content = '注意：[版本包]绿色字体表示此单所提交的文件均在对应的版本包中 橙色字体表示此单某些文件不在此版本包中,相对应预测包信息可大概估计文件下一版本打包时会影响的bundle大小'
-
-        if single_number_assets[single_number]['trunk']:
-            trunk_message += check_out_index(content_message, merge_content(result_total, '/trunk', 'Android'))
-            trunk_message += check_out_index(content_message, merge_content(result_total, '/trunk', 'iOS'))
-
-        if single_number_assets[single_number]['txpublish']:
-            txpublish_message += check_out_index(content_message, merge_content(result_total, '/branches-rel/tx_publish', 'Android'))
-            txpublish_message += check_out_index(content_message, merge_content(result_total, '/branches-rel/tx_publish', 'iOS'))
-
-        if single_number_assets[single_number]['tx_publish_hotfix']:
-            hotfixmessage += check_out_index(content_message, merge_content(result_total, '/branches-rel/tx_publish_hotfix', 'Android'))
-            hotfixmessage += check_out_index(content_message, merge_content(result_total, '/branches-rel/tx_publish_hotfix', 'iOS'))
-
-        if trunk_message or txpublish_message or hotfixmessage:
-            is_total_exit = True
-        if txpublish_message:
-            is_txpublish_exit = True
-
-        if is_total_exit:
-            # 向平台提交数据
-            jx3m.commit_single_number_assetinfo(single_number, result_total)
-            finall_content = item_tile + trunk_message+txpublish_message+hotfixmessage
-            if is_txpublish_exit:
-                finall_content = item_tile + trunk_message+txpublish_message+hotfixmessage+txpublish_title
-            finall_content = finall_content +'\n' + color_content
-            # print('finall_content: ',finall_content)
-            jx3m.update_comment(single_number,finall_content)
-        else:
-            finall_content = '*更新包大小预测结果*\n'+'此单当前文件暂未有打包信息,等待后续版本包信息再进行预测\n'
-            jx3m.update_comment(single_number, finall_content)
-
+        if count == 11:
+            break
         count = count + 1
-    print('提交单数量：',str(count))
+        # 向结果添加单号和版本信息 Android iOS 安装包信息 预测包信息
+        result_total['issueid'] = single_number
+        result_total['version'] = jx3m.version_info['version']
+        result_total = comcat_result(result_total, '/trunk', 'Android')
+        result_total = comcat_result(result_total, '/trunk', 'iOS')
+        result_total = comcat_result(result_total, '/branches-rel/tx_publish', 'Android')
+        result_total = comcat_result(result_total, '/branches-rel/tx_publish', 'iOS')
+        result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'Android')
+        result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'iOS')
+
+        jx3m.commit_single_number_assetinfo(single_number, result_total)
+        # print('result_total: ', str(result_total))
+
+    print('提交单数量：', str(count))
     print('[Test]analy single number end: ', str(begin_time - time.time()))
-
-
 
 
