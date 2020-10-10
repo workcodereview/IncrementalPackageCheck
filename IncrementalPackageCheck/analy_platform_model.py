@@ -13,10 +13,10 @@ class Analy_Plat:
         self.__reload()
 
     def __reload(self):
-        self._aba_bundle_id = self._get_all_aba_id() # 获取可以得到aba_bundle内容的id
+        self.aba_bundle_id = self.get_all_aba_id() # 获取可以得到aba_bundle内容的id
 
     # 需要获取当前Android iOS 所有现有的包的信息 aba_bundle_id 取了15条数据
-    def _get_all_aba_id(self):
+    def get_all_aba_id(self):
         _aba_bundle_id = []
         r = requests.get(self._package_url, json={'query':{'disable': False, 'status': True}, 'sort':{'_id': -1}})
         data_content = r.json()
@@ -49,7 +49,7 @@ class Analy_Plat:
         txpublish_path_to_bundle = {}
         txhotfix_path_to_bundle = {}
 
-        for value in self._aba_bundle_id:
+        for value in self.aba_bundle_id:
             if value['platform'] not in trunk_path_to_bundle:
                 trunk_path_to_bundle[value['platform']] = {}
             if value['svn'] not in trunk_path_to_bundle[value['platform']]:

@@ -52,7 +52,6 @@ class JX3M:
                     single_number_list.append(value['key'])
             return single_number_list
 
-
     # 通过单获取日志 截取资源路径
     def get_log(self, single_number):
         # print('[Jira]get_log单号url为: ',self._jx3m_url.format(single_number))
