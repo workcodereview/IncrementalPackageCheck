@@ -230,12 +230,13 @@ if __name__ == '__main__':
     last_max_timestrap = 0
     analy = Analy_Plat()
 
-    # current_max_timestrap = check_max_timestamp(analy)
-    current_max_timestrap = 10
+    current_max_timestrap = check_max_timestamp(analy)
 
     while True:
         if last_max_timestrap < current_max_timestrap:
             # 保存当前跑的最大版本包的时间戳 为了下一次作比较
+            print('[Test]当前有新包 需要更新预测信息')
+
             last_max_timestrap = current_max_timestrap
             # 主干获取bundle测试通过
             trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle = analy.get_aba_bundle_dict()
@@ -270,11 +271,10 @@ if __name__ == '__main__':
                 result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'iOS')
 
                 jx3m.commit_single_number_assetinfo(single_number, result_total)
-                print('result_total: ', str(result_total))
+                # print('result_total: ', str(result_total))
 
             print('提交单数量：', str(count))
             print('[Test]analy single number end: ', str(begin_time - time.time()))
         else:
-            print('监测是否有新包中')
             current_max_timestrap = check_max_timestamp(analy)
 
