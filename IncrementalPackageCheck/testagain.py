@@ -4,6 +4,7 @@ from Jira_model import JX3M
 from analy_platform_model import Analy_Plat
 from data_config import jx3m_page_Platform
 
+
 # analy_single_number 调用此函数 传入对应平台的bundle文件 file 文件 查找
 def check_asset_bundle(svn_info, asset_path, root_type, platform):
     result_message = {}
@@ -14,7 +15,7 @@ def check_asset_bundle(svn_info, asset_path, root_type, platform):
         path = path.strip().replace('/branches-rel/tx_publish/JX3Pocket/', '')
 
     for svn, file_message in svn_info.items():
-        if path in  file_message:
+        if path in file_message:
             result_message = {
                 'root': root_type,  # trunk txpublish txhotfix
                 'file': asset_path,  # /trunk/JX3Pocket/ /branches-rel/tx_publish /txhotfix
@@ -24,19 +25,21 @@ def check_asset_bundle(svn_info, asset_path, root_type, platform):
                 'bundle_name': file_message[path]['bundle_name'],  # 文件所在的bundle中
                 'bundle_size': file_message[path]['bundle_size'],  # bundle的大小
                 # 版本包的路径
-                'revison_url': jx3m_page_Platform['revison_url'].format(platform, file_message[path]['package_timestamp']),
+                'revison_url': jx3m_page_Platform['revison_url'].format(platform,
+                                                                        file_message[path]['package_timestamp']),
                 # bundle包的路径
-                'bundle_name_url': jx3m_page_Platform['bundle_url'].format(platform, file_message[path]['package_timestamp'],
+                'bundle_name_url': jx3m_page_Platform['bundle_url'].format(platform,
+                                                                           file_message[path]['package_timestamp'],
                                                                            file_message[path]['bundle_name'])
             }
             break
     return result_message
 
+
 # 分析查找每个单的信息 返回整个单所有文件的结果
 def analy_single_number(trunk_bundle, txpublish_bundle, hotfix_bundle, root_message):
     return_result = {'issueid': '', 'version': '', 'total': [], 'data': {}}
     single_number_result = {}
-
 
     for root_type, file_list in root_message.items():
         for file in file_list:
@@ -46,7 +49,6 @@ def analy_single_number(trunk_bundle, txpublish_bundle, hotfix_bundle, root_mess
 
             if file not in single_number_result:
                 single_number_result[file] = {}
-
 
             if root_type == 'trunk':
                 android_result = check_asset_bundle(trunk_bundle['Android'], file, root_type, 'Android')
@@ -71,6 +73,7 @@ def analy_single_number(trunk_bundle, txpublish_bundle, hotfix_bundle, root_mess
     return_result['data'] = single_number_result
     return return_result
 
+
 # 寻找最新的安装包 更新包 如果查找结果存在多个版本 也需要保存起来 出了最新包 其余作为预测包 comcat_result 调用此函数
 def find_max_revison(result, root_type, plat):
     max_svn = 0
@@ -86,21 +89,24 @@ def find_max_revison(result, root_type, plat):
                         max_new_message = bundle_info
                         if bundle_info['svn'] not in svn_list:
                             svn_list[bundle_info['svn']] = {}
-                        svn_list[bundle_info['svn']] = {'revison_url': bundle_info['revison_url'], 'pakage_size': bundle_info['package_size'] }  # 保存所有小于最新的包版本
+                        svn_list[bundle_info['svn']] = {'revison_url': bundle_info['revison_url'],
+                                                        'pakage_size': bundle_info['package_size']}  # 保存所有小于最新的包版本
     if max_svn != 0:
         svn_list.pop(str(max_svn))
 
     return max_new_message, svn_list
+
 
 # 计算大小 将所有大小信息都转为字节 Encapsulation_result调用此函数
 def calc_pakcage_size(size):
     package_size = size
     if 'MB' in package_size:
         package_size = package_size.replace('MB', '')
-        package_size = float(package_size)*1024*1024
+        package_size = float(package_size) * 1024 * 1024
     elif 'KB' in package_size:
-        package_size = float(package_size.replace('MB', ''))*1024
+        package_size = float(package_size.replace('MB', '')) * 1024
     return str(package_size)
+
 
 # 组织安装包 更新包 预测包结构  comcat_result 调用此函数
 def Encapsulation_result(platform_message, svn_list_info, platform, root):
@@ -125,7 +131,6 @@ def Encapsulation_result(platform_message, svn_list_info, platform, root):
             package_message['update_info']['revison_url'] = platform_message['revison_url']
             package_message['update_info']['package_size'] = calc_pakcage_size(platform_message['package_size'])
 
-
     if svn_list_info:
         temp_dict = {}
         for svn, svn_info in svn_list_info:
@@ -141,13 +146,15 @@ def Encapsulation_result(platform_message, svn_list_info, platform, root):
 
     return package_message
 
+
 # 获取当前主干 分支 hotfix的安装包 更新包 预测包情况
-def comcat_result(result,root, plat):
+def comcat_result(result, root, plat):
     message, svn_info = find_max_revison(result_total, root, plat)
     temp_result = Encapsulation_result(message, svn_info, plat, root)
     if temp_result:
         result['total'].append(temp_result)
     return result
+
 
 # 预测的涉及的包的信息展示
 def concat_preview_pakcage(svn_info):
@@ -157,10 +164,11 @@ def concat_preview_pakcage(svn_info):
         return message
 
     for revison, url in svn_info.items():
-       temp_message = '[版本包'+revison+'|'+url+']'
-       if len(message + temp_message) < 32767:
-           message += temp_message
+        temp_message = '[版本包' + revison + '|' + url + ']'
+        if len(message + temp_message) < 32767:
+            message += temp_message
     return message
+
 
 def merge_content(result, root, platform):
     content = ''
@@ -172,30 +180,33 @@ def merge_content(result, root, platform):
     if new_message:
         preview_message = concat_preview_pakcage(svn_info)
         if preview_message != '':
-            print('[Test]存在预测更新包信息,更换颜色,preview_message:',preview_message)
+            print('[Test]存在预测更新包信息,更换颜色,preview_message:', preview_message)
             color_message = jx3m_page_Platform['color_orige']
 
         package_size = new_message['package_size']
         if 'MB' in package_size:
             package_size = package_size.replace('MB', '')
         elif 'KB' in package_size:
-            package_size = round(int(package_size.replace('MB', ''))/1024, 2)
+            package_size = round(int(package_size.replace('MB', '')) / 1024, 2)
         else:
-            package_size = round(int(package_size)/1024, 2)
+            package_size = round(int(package_size) / 1024, 2)
 
         if '/branches-rel' in root:
             root = root.replace('/branches-rel', '')
 
-        root_platform = root + ' ' +platform
+        root_platform = root + ' ' + platform
         if root == '/trunk':
             # print('[Test]主干信息合并展示')
-            mesage_temp = color_message.format('版本包:') + '['+new_message['svn'] + '('+ str(package_size)+'MB)|' + new_message['revison_url'] + ']'
-            content = '|'+root_platform+'|'+mesage_temp+'|' + ' |' + preview_message + ' |\n'
+            mesage_temp = color_message.format('版本包:') + '[' + new_message['svn'] + '(' + str(package_size) + 'MB)|' + \
+                          new_message['revison_url'] + ']'
+            content = '|' + root_platform + '|' + mesage_temp + '|' + ' |' + preview_message + ' |\n'
         else:
             # print('[Test]分支或者热更信息合并展示')
-            mesage_temp = color_message.format('版本包:') + '[' + new_message['svn'] + '(' + str(package_size) + 'MB)|' + new_message['revison_url'] + ']'
-            content = '|' + root_platform + ' | |'+ mesage_temp + '|' + preview_message + ' |\n'
+            mesage_temp = color_message.format('版本包:') + '[' + new_message['svn'] + '(' + str(package_size) + 'MB)|' + \
+                          new_message['revison_url'] + ']'
+            content = '|' + root_platform + ' | |' + mesage_temp + '|' + preview_message + ' |\n'
     return content
+
 
 def check_out_index(first_content, second_content):
     if len(first_content + second_content) > 32767:
@@ -203,51 +214,67 @@ def check_out_index(first_content, second_content):
     else:
         return first_content + second_content
 
+
+def check_max_timestamp(analysize):
+    current_timestrap = 0  # 标记当前获取到的最大的时间戳
+    bundle_id = analysize.get_all_aba_id()
+    for bundle_info in bundle_id:
+        if int(bundle_info['timestamp']) > current_timestrap:
+            current_timestrap = int(bundle_info['timestamp'])
+    return current_timestrap
+
 if __name__ == '__main__':
 
-    # jx3m = JX3M()
-    # single_number_assets = jx3m.get_single_number_assets()
-    # for single_number, root_info in single_number_assets.items():
-    #     print('single_number: ',single_number)
-    #     print('root_info: ',str(root_info))
-
     # 取aba_bundle信息
+
+    last_max_timestrap = 0
     analy = Analy_Plat()
-    print('[Test]bundle信息获取完成')
-    # 主干获取bundle测试通过
-    trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle = analy.get_aba_bundle_dict()
-    jx3m = JX3M()
-    single_number_assets, single_number_info = jx3m.get_single_number_assets()
-    print('[Test]单号长度: ',len(single_number_assets))
 
-    count = 1
-    begin_time = time.time()
+    # current_max_timestrap = check_max_timestamp(analy)
+    current_max_timestrap = 10
 
-    for single_number, root_info in single_number_assets.items():
-        print('[Test]当前正在分析第' + str(count) + '个提交单,单号为:' + single_number)
-        # 获取当前单的所有信息 文件对应bundle 或者 没有找到bundle的文件列表
-        result_total = analy_single_number(trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle, root_info)
-        count = count + 1
+    while True:
+        if last_max_timestrap < current_max_timestrap:
+            # 保存当前跑的最大版本包的时间戳 为了下一次作比较
+            last_max_timestrap = current_max_timestrap
+            # 主干获取bundle测试通过
+            trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle = analy.get_aba_bundle_dict()
+            print('[Test]bundle信息获取完成')
 
-        # 存储此单的描述 经办人 创建时间
-        result_total['author'] = single_number_info[single_number]['author']
-        result_total['created'] = single_number_info[single_number]['created']
-        result_total['summary'] = single_number_info[single_number]['summary']
+            jx3m = JX3M()
+            single_number_assets, single_number_info = jx3m.get_single_number_assets()
+            print('[Test]单号长度: ',len(single_number_assets))
 
-        # 向结果添加单号和版本信息 Android iOS 安装包信息 预测包信息
-        result_total['issueid'] = single_number
-        result_total['version'] = jx3m.version_info['version']
-        result_total = comcat_result(result_total, '/trunk', 'Android')
-        result_total = comcat_result(result_total, '/trunk', 'iOS')
-        result_total = comcat_result(result_total, '/branches-rel/tx_publish', 'Android')
-        result_total = comcat_result(result_total, '/branches-rel/tx_publish', 'iOS')
-        result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'Android')
-        result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'iOS')
+            count = 1
+            begin_time = time.time()
 
-        jx3m.commit_single_number_assetinfo(single_number, result_total)
-        print('result_total: ', str(result_total))
+            for single_number, root_info in single_number_assets.items():
+                print('[Test]当前正在分析第' + str(count) + '个提交单,单号为:' + single_number)
+                # 获取当前单的所有信息 文件对应bundle 或者 没有找到bundle的文件列表
+                result_total = analy_single_number(trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle, root_info)
+                count = count + 1
 
-    print('提交单数量：', str(count))
-    print('[Test]analy single number end: ', str(begin_time - time.time()))
+                # 存储此单的描述 经办人 创建时间
+                result_total['author'] = single_number_info[single_number]['author']
+                result_total['created'] = single_number_info[single_number]['created']
+                result_total['summary'] = single_number_info[single_number]['summary']
 
+                # 向结果添加单号和版本信息 Android iOS 安装包信息 预测包信息
+                result_total['issueid'] = single_number
+                result_total['version'] = jx3m.version_info['version']
+                result_total = comcat_result(result_total, '/trunk', 'Android')
+                result_total = comcat_result(result_total, '/trunk', 'iOS')
+                result_total = comcat_result(result_total, '/branches-rel/tx_publish', 'Android')
+                result_total = comcat_result(result_total, '/branches-rel/tx_publish', 'iOS')
+                result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'Android')
+                result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'iOS')
+
+                jx3m.commit_single_number_assetinfo(single_number, result_total)
+                print('result_total: ', str(result_total))
+
+            print('提交单数量：', str(count))
+            print('[Test]analy single number end: ', str(begin_time - time.time()))
+        else:
+            print('监测是否有新包中')
+            current_max_timestrap = check_max_timestamp(analy)
 
