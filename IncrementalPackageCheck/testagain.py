@@ -4,7 +4,7 @@ from Jira_model import JX3M
 from analy_platform_model import Analy_Plat
 from data_config import jx3m_page_Platform
 
-# 传入对应平台的bundle文件 file 文件 查找
+# analy_single_number 调用此函数 传入对应平台的bundle文件 file 文件 查找
 def check_asset_bundle(svn_info, asset_path, root_type, platform):
     result_message = {}
     path = asset_path
@@ -70,7 +70,7 @@ def analy_single_number(trunk_bundle, txpublish_bundle, hotfix_bundle, root_mess
     return_result['data'] = single_number_result
     return return_result
 
-# 指定root 平台 获取最新的包版本 在返回所有的版本包 便于展示
+# 寻找最新的安装包 更新包 如果查找结果存在多个版本 也需要保存起来 出了最新包 其余作为预测包 comcat_result 调用此函数
 def find_max_revison(result, root_type, plat):
     max_svn = 0
     max_new_message = {}
@@ -91,7 +91,7 @@ def find_max_revison(result, root_type, plat):
 
     return max_new_message, svn_list
 
-# 计算大小
+# 计算大小 将所有大小信息都转为字节 Encapsulation_result调用此函数
 def calc_pakcage_size(size):
     package_size = size
     if 'MB' in package_size:
@@ -101,7 +101,7 @@ def calc_pakcage_size(size):
         package_size = float(package_size.replace('MB', ''))*1024
     return str(package_size)
 
-# 组织返回结果格式
+# 组织安装包 更新包 预测包结构  comcat_result 调用此函数
 def Encapsulation_result(platform_message, svn_list_info, platform, root):
     # print('platform_message: ',str(platform_message))
     # print('svn_list_info:',str(svn_list_info))
@@ -140,7 +140,7 @@ def Encapsulation_result(platform_message, svn_list_info, platform, root):
 
     return package_message
 
-# 组织安装包 更新包格式
+# 获取当前主干 分支 hotfix的安装包 更新包 预测包情况
 def comcat_result(result,root, plat):
     message, svn_info = find_max_revison(result_total, root, plat)
     temp_result = Encapsulation_result(message, svn_info, plat, root)
@@ -215,13 +215,11 @@ if __name__ == '__main__':
 
     count = 1
     begin_time = time.time()
-    # print('txpublish_path_to_bundle: ',str(txpublish_path_to_bundle))
+
     for single_number, root_info in single_number_assets.items():
         print('[Test]当前正在分析第' + str(count) + '个提交单,单号为:' + single_number)
         # 获取当前单的所有信息 文件对应bundle 或者 没有找到bundle的文件列表
         result_total = analy_single_number(trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle, root_info)
-        if count == 11:
-            break
         count = count + 1
         # 向结果添加单号和版本信息 Android iOS 安装包信息 预测包信息
         result_total['issueid'] = single_number
