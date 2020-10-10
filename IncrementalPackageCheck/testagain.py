@@ -276,5 +276,6 @@ if __name__ == '__main__':
             print('提交单数量：', str(count))
             print('[Test]analy single number end: ', str(begin_time - time.time()))
         else:
+            time.sleep(20*60)
             current_max_timestrap = check_max_timestamp(analy)
 
