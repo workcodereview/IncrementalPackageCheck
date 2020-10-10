@@ -37,6 +37,7 @@ def analy_single_number(trunk_bundle, txpublish_bundle, hotfix_bundle, root_mess
     return_result = {'issueid': '', 'version': '', 'total': [], 'data': {}}
     single_number_result = {}
 
+
     for root_type, file_list in root_message.items():
         for file in file_list:
             # print('[Test]当前分析的文件为: ',file)
@@ -204,13 +205,19 @@ def check_out_index(first_content, second_content):
 
 if __name__ == '__main__':
 
+    # jx3m = JX3M()
+    # single_number_assets = jx3m.get_single_number_assets()
+    # for single_number, root_info in single_number_assets.items():
+    #     print('single_number: ',single_number)
+    #     print('root_info: ',str(root_info))
+
     # 取aba_bundle信息
     analy = Analy_Plat()
     print('[Test]bundle信息获取完成')
     # 主干获取bundle测试通过
     trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle = analy.get_aba_bundle_dict()
     jx3m = JX3M()
-    single_number_assets = jx3m.get_single_number_assets()
+    single_number_assets, single_number_info = jx3m.get_single_number_assets()
     print('[Test]单号长度: ',len(single_number_assets))
 
     count = 1
@@ -221,6 +228,12 @@ if __name__ == '__main__':
         # 获取当前单的所有信息 文件对应bundle 或者 没有找到bundle的文件列表
         result_total = analy_single_number(trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle, root_info)
         count = count + 1
+
+        # 存储此单的描述 经办人 创建时间
+        result_total['author'] = single_number_info[single_number]['author']
+        result_total['created'] = single_number_info[single_number]['created']
+        result_total['summary'] = single_number_info[single_number]['summary']
+
         # 向结果添加单号和版本信息 Android iOS 安装包信息 预测包信息
         result_total['issueid'] = single_number
         result_total['version'] = jx3m.version_info['version']
@@ -232,7 +245,7 @@ if __name__ == '__main__':
         result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'iOS')
 
         jx3m.commit_single_number_assetinfo(single_number, result_total)
-        # print('result_total: ', str(result_total))
+        print('result_total: ', str(result_total))
 
     print('提交单数量：', str(count))
     print('[Test]analy single number end: ', str(begin_time - time.time()))

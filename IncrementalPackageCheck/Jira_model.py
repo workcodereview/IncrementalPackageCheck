@@ -2,7 +2,6 @@
 
 # 向平台推送更新包信息  this model success
 import re
-import time
 import requests
 import datetime
 from data_config import jx3m_page_Platform
@@ -10,6 +9,7 @@ from data_config import jx3m_page_Platform
 class JX3M:
     def __init__(self):
         self._jx3m_url = jx3m_page_Platform['jx3m_page_url']
+        self._issue_url = jx3m_page_Platform['record_url']
         self._upload_url = jx3m_page_Platform['upload_url']
         self._single_number_url = jx3m_page_Platform['total_single_number_url']  # 记录提交单所有信息的地方
         self._URL_SEARCH = jx3m_page_Platform['URL_SEARCH']
@@ -52,11 +52,22 @@ class JX3M:
                     single_number_list.append(value['key'])
             return single_number_list
 
+
     # 通过单获取日志 截取资源路径
     def get_log(self, single_number):
         # print('[Jira]get_log单号url为: ',self._jx3m_url.format(single_number))
         r = requests.get(self._jx3m_url.format(single_number), auth=(self._username, self._password))
         return r.json()
+
+    def get_single_number_log(self,single_number):
+        message = {'summary': '', 'author': '', 'created': ''}
+        r = requests.get(self._issue_url.format(single_number), auth=(self._username, self._password))
+        data = r.json()
+        if data and data['fields']:
+            message['summary'] = data['fields']['summary']
+            message['author'] = data['fields']['assignee']['name']
+            message['created'] = data['fields']['created']
+        return message
 
     def delete_log(self,single_number, item_id):
         print('[Jira]delete_log删除旧的备注信息')
@@ -105,6 +116,7 @@ class JX3M:
     # 获取过去十小时变动单号所包含的资源文件路径 包含主干和分支
     def get_single_number_assets(self):
         asset_path_dict = {}
+        single_number_message = {}
         count = 1
         for single_number in self._single_number_list:
             count = count + 1
@@ -117,6 +129,12 @@ class JX3M:
                 asset_path_dict[single_number]['txpublish'] = []
             if 'tx_publish_hotfix' not in asset_path_dict[single_number]:
                 asset_path_dict[single_number]['tx_publish_hotfix'] = []
+
+            if single_number not in single_number_message:
+                single_number_message[single_number] = {}
+
+            issue_data = self.get_single_number_log(single_number)
+            single_number_message[single_number] = {'author': issue_data['author'], 'created': issue_data['created'], 'summary': issue_data['summary'] }
 
             data = self.get_log(single_number)
             if data and data['comments']:
@@ -138,7 +156,7 @@ class JX3M:
                                 asset_path = value.strip()
                                 if asset_path not in asset_path_dict[single_number]['tx_publish_hotfix']:
                                     asset_path_dict[single_number]['tx_publish_hotfix'].append(asset_path)
-        return asset_path_dict
+        return asset_path_dict, single_number_message
 
     # 向平台提交单号信息
     def commit_single_number_assetinfo(self,single_number, content):
