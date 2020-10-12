@@ -35,7 +35,6 @@ def check_asset_bundle(svn_info, asset_path, root_type, platform):
             break
     return result_message
 
-
 # 分析查找每个单的信息 返回整个单所有文件的结果
 def analy_single_number(trunk_bundle, txpublish_bundle, hotfix_bundle, root_message):
     return_result = {'issueid': '', 'version': '', 'total': [], 'data': {}}
@@ -73,7 +72,6 @@ def analy_single_number(trunk_bundle, txpublish_bundle, hotfix_bundle, root_mess
     return_result['data'] = single_number_result
     return return_result
 
-
 # 寻找最新的安装包 更新包 如果查找结果存在多个版本 也需要保存起来 出了最新包 其余作为预测包 comcat_result 调用此函数
 def find_max_revison(result, root_type, plat):
     max_svn = 0
@@ -96,7 +94,6 @@ def find_max_revison(result, root_type, plat):
 
     return max_new_message, svn_list
 
-
 # 计算大小 将所有大小信息都转为字节 Encapsulation_result调用此函数
 def calc_pakcage_size(size):
     package_size = size
@@ -106,7 +103,6 @@ def calc_pakcage_size(size):
     elif 'KB' in package_size:
         package_size = float(package_size.replace('MB', '')) * 1024
     return str(package_size)
-
 
 # 组织安装包 更新包 预测包结构  comcat_result 调用此函数
 def Encapsulation_result(platform_message, svn_list_info, platform, root):
@@ -146,7 +142,6 @@ def Encapsulation_result(platform_message, svn_list_info, platform, root):
 
     return package_message
 
-
 # 获取当前主干 分支 hotfix的安装包 更新包 预测包情况
 def comcat_result(result, root, plat):
     message, svn_info = find_max_revison(result_total, root, plat)
@@ -154,7 +149,6 @@ def comcat_result(result, root, plat):
     if temp_result:
         result['total'].append(temp_result)
     return result
-
 
 # 预测的涉及的包的信息展示
 def concat_preview_pakcage(svn_info):
@@ -168,7 +162,6 @@ def concat_preview_pakcage(svn_info):
         if len(message + temp_message) < 32767:
             message += temp_message
     return message
-
 
 def merge_content(result, root, platform):
     content = ''
@@ -207,13 +200,11 @@ def merge_content(result, root, platform):
             content = '|' + root_platform + ' | |' + mesage_temp + '|' + preview_message + ' |\n'
     return content
 
-
 def check_out_index(first_content, second_content):
     if len(first_content + second_content) > 32767:
         return second_content
     else:
         return first_content + second_content
-
 
 def check_max_timestamp(analysize):
     current_timestrap = 0  # 标记当前获取到的最大的时间戳
@@ -235,18 +226,18 @@ if __name__ == '__main__':
     while True:
         if last_max_timestrap < current_max_timestrap:
             # 保存当前跑的最大版本包的时间戳 为了下一次作比较
-            print('[Test]当前有新包 需要更新预测信息')
-
+            print('[Test]当前有新包 需要更新预测信息当前bundle信息时间戳current_max_timestrap：', str(current_max_timestrap))
+            print('[Test]当前开始时间为: ',time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
             last_max_timestrap = current_max_timestrap
             # 主干获取bundle测试通过
             trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle = analy.get_aba_bundle_dict()
-            print('[Test]bundle信息获取完成')
+
 
             jx3m = JX3M()
             single_number_assets, single_number_info = jx3m.get_single_number_assets()
             print('[Test]单号长度: ',len(single_number_assets))
 
-            count = 1
+            count = 0
             begin_time = time.time()
 
             for single_number, root_info in single_number_assets.items():
@@ -272,8 +263,6 @@ if __name__ == '__main__':
 
                 jx3m.commit_single_number_assetinfo(single_number, result_total)
                 # print('result_total: ', str(result_total))
-
-            print('提交单数量：', str(count))
             print('[Test]analy single number end: ', str(begin_time - time.time()))
         else:
             time.sleep(20*60)

@@ -105,6 +105,6 @@ class Analy_Plat:
                         if asset_path not in txhotfix_path_to_bundle[value['platform']][value['svn']]:
                             txhotfix_path_to_bundle[value['platform']][value['svn']][asset_path] = {}
                         txhotfix_path_to_bundle[value['platform']][value['svn']][asset_path] = bundle_info
-
+        print('[Analy]bundle信息获取完成')
         return trunk_path_to_bundle, txpublish_path_to_bundle, txhotfix_path_to_bundle
 
