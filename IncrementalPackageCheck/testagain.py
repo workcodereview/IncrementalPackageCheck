@@ -214,26 +214,38 @@ def check_max_timestamp(analysize):
             current_timestrap = int(bundle_info['timestamp'])
     return current_timestrap
 
+def check_max_revision(jx3m):
+    revision = 0
+    revison_message = jx3m.get_latest_version()
+    revision = revison_message['version']
+    return revision
+
 if __name__ == '__main__':
 
     # 取aba_bundle信息
 
     last_max_timestrap = 0
+    last_resivion_message = 0
+
     analy = Analy_Plat()
+    jx3m = JX3M()
 
     current_max_timestrap = check_max_timestamp(analy)
+    current_resivion_message = check_max_revision(jx3m)
+
 
     while True:
-        if last_max_timestrap < current_max_timestrap:
+        if last_max_timestrap < current_max_timestrap or last_resivion_message < current_resivion_message:
             # 保存当前跑的最大版本包的时间戳 为了下一次作比较
-            print('[Test]当前有新包 需要更新预测信息当前bundle信息时间戳current_max_timestrap：', str(current_max_timestrap))
+            print('[Test]当前有新包 需要更新预测信息')
+            print('[Test]当前bundle信息时间戳current_max_timestrap：', str(current_max_timestrap))
+            print('[Test]当前resivion发布版本信息current_resivion_message：', str(current_resivion_message))
             print('[Test]当前开始时间为: ',time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
+
             last_max_timestrap = current_max_timestrap
+            last_resivion_message = current_resivion_message
             # 主干获取bundle测试通过
             trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle = analy.get_aba_bundle_dict()
-
-
-            jx3m = JX3M()
             single_number_assets, single_number_info = jx3m.get_single_number_assets()
             print('[Test]单号长度: ',len(single_number_assets))
 
@@ -267,4 +279,4 @@ if __name__ == '__main__':
         else:
             time.sleep(20*60)
             current_max_timestrap = check_max_timestamp(analy)
-
+            current_resivion_message = check_max_revision(jx3m)
