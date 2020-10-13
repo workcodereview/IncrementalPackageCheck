@@ -31,3 +31,16 @@ qb_config= {
     'txpublish_url': 'http://j3m.rdev.kingsoft.net:8810/overview/2011'
 }
 
+svn_config = {
+    'username': 'scm_builder_jx3m',
+    'password': '_ZMvNHvP0C',
+    'url': 'svn://xsjreposvr3.rdev.kingsoft.net/JX3M',
+}
+
+
+redis_config = {
+    'host': '10.11.10.143',
+    'port': 6379,
+    'password': 'yourpassword'
+}
+
