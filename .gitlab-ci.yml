@@ -1,6 +1,8 @@
 .pip_install:
   before_script:
     - pip install requests
+    - pip install svn
+    - pip install redis
 
 stages:
   - build
@@ -19,6 +21,9 @@ build-linux:
 
     - pyinstaller -F testagain.py
     - cp dist/testagain bin/linux/testagain
+
+    - pyinstaller -F update_redis.py
+    - cp dist/update_redis bin/linux/update_redis
 
   artifacts:
     name: linux
@@ -39,6 +44,9 @@ build-mac:
     - pyinstaller -F testagain.py
     - cp dist/testagain bin/mac/testagain
 
+    - pyinstaller -F update_redis.py
+    - cp dist/update_redis bin/mac/update_redis
+
   artifacts:
     name: mac
     paths:
@@ -58,6 +66,8 @@ build-windows:
     - pyinstaller -F testagain.py
     - cp dist/testagain.exe bin/windows/testagain.exe
 
+    - pyinstaller -F update_redis.py
+    - cp dist/update_redis.exe bin/windows/update_redis.exe
 
   artifacts:
     name: windows
