@@ -21,6 +21,7 @@ def check_asset_bundle(svn_info, asset_path, root_type, platform):
                 'file': asset_path,  # /trunk/JX3Pocket/ /branches-rel/tx_publish /txhotfix
                 'platform': platform,  # Android iOS
                 'svn': svn,  # 查找版本包
+                'timestamps': file_message[path]['package_timestamp'],
                 'package_size': file_message[path]['package_size'],  # 版本包的大小
                 'bundle_name': file_message[path]['bundle_name'],  # 文件所在的bundle中
                 'bundle_size': file_message[path]['bundle_size'],  # bundle的大小
@@ -256,6 +257,8 @@ if __name__ == '__main__':
                 print('[Test]当前正在分析第' + str(count) + '个提交单,单号为:' + single_number)
                 # 获取当前单的所有信息 文件对应bundle 或者 没有找到bundle的文件列表
                 result_total = analy_single_number(trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle, root_info)
+                if single_number == 'JX3M-103226':
+                    print(str(result_total))
                 count = count + 1
 
                 # 存储此单的描述 经办人 创建时间
