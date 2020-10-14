@@ -239,55 +239,92 @@ if __name__ == '__main__':
 
     current_max_timestrap, current_svn = check_max_timestamp(analy)
     current_resivion_message = check_max_revision(jx3m)
+    print('[Test]当前bundle信息时间戳current_max_timestrap：' + str(current_max_timestrap) + ' svn版本为: ' + str(current_svn))
+    print('[Test]当前开始时间为: ', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
 
+    # 主干获取bundle测试通过
+    trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle = analy.get_aba_bundle_dict()
+    # single_number_assets, single_number_info = jx3m.get_single_number_assets()
+    # 利用缓存数据获取单号所包含的所有文件
+    single_number_assets, single_number_info = jx3m.get_single_number_path()
+    print('[Test]单号长度: ', len(single_number_assets))
 
-    while True:
-        if last_max_timestrap < current_max_timestrap or last_resivion_message < current_resivion_message:
-            # 保存当前跑的最大版本包的时间戳 为了下一次作比较
-            print('[Test]当前有新包 需要更新预测信息')
-            print('[Test]当前bundle信息时间戳current_max_timestrap：'+str(current_max_timestrap)+' svn版本为: '+str(current_svn))
-            print('[Test]当前resivion发布版本信息current_resivion_message：', str(current_resivion_message))
-            print('[Test]当前开始时间为: ',time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
+    # 开始查找并且遍历
+    count = 0
+    begin_time = time.time()
+    for single_number, root_info in single_number_assets.items():
+        print('[Test]当前正在分析第' + str(count) + '个提交单,单号为:' + single_number)
+        # 获取当前单的所有信息 文件对应bundle 或者 没有找到bundle的文件列表
+        result_total = analy_single_number(trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle,
+                                           root_info)
+        count = count + 1
 
-            last_max_timestrap = current_max_timestrap
-            last_resivion_message = current_resivion_message
-            # 主干获取bundle测试通过
-            trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle = analy.get_aba_bundle_dict()
-            # single_number_assets, single_number_info = jx3m.get_single_number_assets()
-            # 利用缓存数据获取单号所包含的所有文件
-            single_number_assets, single_number_info = jx3m.get_single_number_path()
-            print('[Test]单号长度: ',len(single_number_assets))
+        # 存储此单的描述 经办人 创建时间
+        result_total['author'] = single_number_info[single_number]['author']
+        result_total['created'] = single_number_info[single_number]['created']
+        result_total['summary'] = single_number_info[single_number]['summary']
 
-            count = 0
-            begin_time = time.time()
+        # 向结果添加单号和版本信息 Android iOS 安装包信息 预测包信息
+        result_total['issueid'] = single_number
+        result_total['version'] = jx3m.version_info['version']
+        result_total = comcat_result(result_total, '/trunk', 'Android')
+        result_total = comcat_result(result_total, '/trunk', 'iOS')
+        result_total = comcat_result(result_total, '/branches-rel/tx_publish', 'Android')
+        result_total = comcat_result(result_total, '/branches-rel/tx_publish', 'iOS')
+        result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'Android')
+        result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'iOS')
 
-            for single_number, root_info in single_number_assets.items():
-                print('[Test]当前正在分析第' + str(count) + '个提交单,单号为:' + single_number)
-                # 获取当前单的所有信息 文件对应bundle 或者 没有找到bundle的文件列表
-                result_total = analy_single_number(trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle, root_info)
+        jx3m.commit_single_number_assetinfo(single_number, result_total)
+        # print('result_total: ', str(result_total))
+    print('[Test]analy single number end: ', str(begin_time - time.time()))
 
-                count = count + 1
-
-                # 存储此单的描述 经办人 创建时间
-                result_total['author'] = single_number_info[single_number]['author']
-                result_total['created'] = single_number_info[single_number]['created']
-                result_total['summary'] = single_number_info[single_number]['summary']
-
-                # 向结果添加单号和版本信息 Android iOS 安装包信息 预测包信息
-                result_total['issueid'] = single_number
-                result_total['version'] = jx3m.version_info['version']
-                result_total = comcat_result(result_total, '/trunk', 'Android')
-                result_total = comcat_result(result_total, '/trunk', 'iOS')
-                result_total = comcat_result(result_total, '/branches-rel/tx_publish', 'Android')
-                result_total = comcat_result(result_total, '/branches-rel/tx_publish', 'iOS')
-                result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'Android')
-                result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'iOS')
-
-                jx3m.commit_single_number_assetinfo(single_number, result_total)
-                # print('result_total: ', str(result_total))
-            print('[Test]analy single number end: ', str(begin_time - time.time()))
-        else:
-            time.sleep(10*60)
-            print('[Test]间隔1分钟后再次尝试获取是否有新包')
-            current_max_timestrap, current_svn = check_max_timestamp(analy)
-            current_resivion_message = check_max_revision(jx3m)
+    # while True:
+    #     if last_max_timestrap < current_max_timestrap or last_resivion_message < current_resivion_message:
+    #         # 保存当前跑的最大版本包的时间戳 为了下一次作比较
+    #         print('[Test]当前有新包 需要更新预测信息')
+    #         print('[Test]当前bundle信息时间戳current_max_timestrap：'+str(current_max_timestrap)+' svn版本为: '+str(current_svn))
+    #         print('[Test]当前resivion发布版本信息current_resivion_message：', str(current_resivion_message))
+    #         print('[Test]当前开始时间为: ',time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
+    #
+    #         last_max_timestrap = current_max_timestrap
+    #         last_resivion_message = current_resivion_message
+    #         # 主干获取bundle测试通过
+    #         trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle = analy.get_aba_bundle_dict()
+    #         # single_number_assets, single_number_info = jx3m.get_single_number_assets()
+    #         # 利用缓存数据获取单号所包含的所有文件
+    #         single_number_assets, single_number_info = jx3m.get_single_number_path()
+    #         print('[Test]单号长度: ',len(single_number_assets))
+    #
+    #         count = 0
+    #         begin_time = time.time()
+    #
+    #         for single_number, root_info in single_number_assets.items():
+    #             print('[Test]当前正在分析第' + str(count) + '个提交单,单号为:' + single_number)
+    #             # 获取当前单的所有信息 文件对应bundle 或者 没有找到bundle的文件列表
+    #             result_total = analy_single_number(trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle, root_info)
+    #
+    #             count = count + 1
+    #
+    #             # 存储此单的描述 经办人 创建时间
+    #             result_total['author'] = single_number_info[single_number]['author']
+    #             result_total['created'] = single_number_info[single_number]['created']
+    #             result_total['summary'] = single_number_info[single_number]['summary']
+    #
+    #             # 向结果添加单号和版本信息 Android iOS 安装包信息 预测包信息
+    #             result_total['issueid'] = single_number
+    #             result_total['version'] = jx3m.version_info['version']
+    #             result_total = comcat_result(result_total, '/trunk', 'Android')
+    #             result_total = comcat_result(result_total, '/trunk', 'iOS')
+    #             result_total = comcat_result(result_total, '/branches-rel/tx_publish', 'Android')
+    #             result_total = comcat_result(result_total, '/branches-rel/tx_publish', 'iOS')
+    #             result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'Android')
+    #             result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'iOS')
+    #
+    #             jx3m.commit_single_number_assetinfo(single_number, result_total)
+    #             # print('result_total: ', str(result_total))
+    #         print('[Test]analy single number end: ', str(begin_time - time.time()))
+    #     else:
+    #         time.sleep(10*60)
+    #         print('[Test]间隔1分钟后再次尝试获取是否有新包')
+    #         current_max_timestrap, current_svn = check_max_timestamp(analy)
+    #         current_resivion_message = check_max_revision(jx3m)
