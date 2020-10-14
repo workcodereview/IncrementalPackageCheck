@@ -4,6 +4,7 @@
 import re
 import requests
 import datetime
+from redis_model import RedisManager
 from data_config import jx3m_page_Platform
 
 class JX3M:
@@ -116,10 +117,8 @@ class JX3M:
     def get_single_number_assets(self):
         asset_path_dict = {}
         single_number_message = {}
-        count = 1
-        for single_number in self._single_number_list:
-            count = count + 1
 
+        for single_number in self._single_number_list:
             if single_number not in asset_path_dict:
                 asset_path_dict[single_number] = {}
             if 'trunk' not in asset_path_dict[single_number]:
@@ -155,6 +154,47 @@ class JX3M:
                                 asset_path = value.strip()
                                 if asset_path not in asset_path_dict[single_number]['tx_publish_hotfix']:
                                     asset_path_dict[single_number]['tx_publish_hotfix'].append(asset_path)
+        return asset_path_dict, single_number_message
+
+    # 从redis获取文件信息
+    def get_single_number_path(self):
+        redis_manager = RedisManager()
+        asset_path_dict = {}
+        single_number_message = {}
+
+        for single_number in self._single_number_list:
+            if single_number not in asset_path_dict:
+                asset_path_dict[single_number] = {}
+            if 'trunk' not in asset_path_dict[single_number]:
+                asset_path_dict[single_number]['trunk'] = []
+            if 'txpublish' not in asset_path_dict[single_number]:
+                asset_path_dict[single_number]['txpublish'] = []
+            if 'tx_publish_hotfix' not in asset_path_dict[single_number]:
+                asset_path_dict[single_number]['tx_publish_hotfix'] = []
+            if single_number not in single_number_message:
+                single_number_message[single_number] = {}
+
+            issue_data = self.get_single_number_log(single_number)
+            single_number_message[single_number] = {'author': issue_data['author'], 'created': issue_data['created'],
+                                                    'summary': issue_data['summary']}
+            data = redis_manager.get_value(single_number)
+            if data :
+                for value in data:
+                    if '/trunk' in value and 'Assets' in value and not value.endswith('.meta'):
+                        asset_path = value.strip()
+                        if asset_path not in asset_path_dict[single_number]['trunk']:
+                            asset_path_dict[single_number]['trunk'].append(asset_path)
+
+                    if '/branches-rel/tx_publish' in value and 'Assets' in value and not value.endswith('.meta'):
+                        asset_path = value.strip()
+                        if asset_path not in asset_path_dict[single_number]['txpublish']:
+                            asset_path_dict[single_number]['txpublish'].append(asset_path)
+
+                    if '/branches-rel/tx_publish_hotfix' in value and 'Assets' in value and not value.endswith('.meta'):
+                        asset_path = value.strip()
+                        if asset_path not in asset_path_dict[single_number]['tx_publish_hotfix']:
+                            asset_path_dict[single_number]['tx_publish_hotfix'].append(asset_path)
+
         return asset_path_dict, single_number_message
 
     # 向平台提交单号信息

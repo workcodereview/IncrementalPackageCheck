@@ -253,7 +253,9 @@ if __name__ == '__main__':
             last_resivion_message = current_resivion_message
             # 主干获取bundle测试通过
             trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle = analy.get_aba_bundle_dict()
-            single_number_assets, single_number_info = jx3m.get_single_number_assets()
+            # single_number_assets, single_number_info = jx3m.get_single_number_assets()
+            # 利用缓存数据获取单号所包含的所有文件
+            single_number_assets, single_number_info = jx3m.get_single_number_path()
             print('[Test]单号长度: ',len(single_number_assets))
 
             count = 0
