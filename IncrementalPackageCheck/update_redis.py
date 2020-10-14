@@ -103,8 +103,10 @@ if __name__ == '__main__':
                             if current_revision < revision_info['revision']:
                                 current_revision = revision_info['revision']
             if current_revision == 0:
+                print('[Test]未发现log信息,更新查找版本区间')
                 current_revision = to_revision
             if current_revision == from_revision:
+                print('[Test]发现循环点,跳出循环')
                 current_revision = from_revision + 1
 
             print('[Test]循环内log最后解析的版本是current_revision: '+str(current_revision))
