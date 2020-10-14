@@ -209,11 +209,17 @@ def check_out_index(first_content, second_content):
 
 def check_max_timestamp(analysize):
     current_timestrap = 0  # 标记当前获取到的最大的时间戳
+    current_svn = 0
+    info = {}
+
     bundle_id = analysize.get_all_aba_id()
     for bundle_info in bundle_id:
         if int(bundle_info['timestamp']) > current_timestrap:
             current_timestrap = int(bundle_info['timestamp'])
-    return current_timestrap
+            info = bundle_info
+    current_svn = int(info['svn'])
+
+    return current_timestrap, current_svn
 
 def check_max_revision(jx3m):
     revision = 0
@@ -231,7 +237,7 @@ if __name__ == '__main__':
     analy = Analy_Plat()
     jx3m = JX3M()
 
-    current_max_timestrap = check_max_timestamp(analy)
+    current_max_timestrap, current_svn = check_max_timestamp(analy)
     current_resivion_message = check_max_revision(jx3m)
 
 
@@ -239,7 +245,7 @@ if __name__ == '__main__':
         if last_max_timestrap < current_max_timestrap or last_resivion_message < current_resivion_message:
             # 保存当前跑的最大版本包的时间戳 为了下一次作比较
             print('[Test]当前有新包 需要更新预测信息')
-            print('[Test]当前bundle信息时间戳current_max_timestrap：', str(current_max_timestrap))
+            print('[Test]当前bundle信息时间戳current_max_timestrap：'+str(current_max_timestrap)+' svn版本为: '+str(current_svn))
             print('[Test]当前resivion发布版本信息current_resivion_message：', str(current_resivion_message))
             print('[Test]当前开始时间为: ',time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
 
@@ -281,5 +287,5 @@ if __name__ == '__main__':
         else:
             time.sleep(1*60)
             print('[Test]间隔1分钟后再次尝试获取是否有新包')
-            current_max_timestrap = check_max_timestamp(analy)
+            current_max_timestrap, current_svn = check_max_timestamp(analy)
             current_resivion_message = check_max_revision(jx3m)
