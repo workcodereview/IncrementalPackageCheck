@@ -285,7 +285,7 @@ if __name__ == '__main__':
                 # print('result_total: ', str(result_total))
             print('[Test]analy single number end: ', str(begin_time - time.time()))
         else:
-            time.sleep(1*60)
+            time.sleep(10*60)
             print('[Test]间隔1分钟后再次尝试获取是否有新包')
             current_max_timestrap, current_svn = check_max_timestamp(analy)
             current_resivion_message = check_max_revision(jx3m)
