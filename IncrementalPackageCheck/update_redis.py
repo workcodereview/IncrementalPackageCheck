@@ -104,12 +104,16 @@ if __name__ == '__main__':
                                 current_revision = revision_info['revision']
             if current_revision == 0:
                 current_revision = to_revision
+            if current_revision == from_revision:
+                current_revision = from_revision + 1
 
+            print('[Test]循环内log最后解析的版本是current_revision: '+str(current_revision))
             update_revision_file(revision_file, current_revision)
             print('[Test]遍历10000个版本需要花费时间为: '+str(begin_time - time.time()))
 
         to_revision = read_revison_file(revision_file)
         max_revision = svn_manager.get_new_revision()
+        print('[Test]循环内获取到的max_revision: '+str(max_revision))
 
 
 
