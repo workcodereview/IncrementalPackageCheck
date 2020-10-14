@@ -20,7 +20,7 @@ build-linux:
     - mkdir -p bin/linux
 
     - pyinstaller -F update_single_number.py
-    - cp dist/testagain bin/linux/update_single_number
+    - cp dist/update_single_number bin/linux/update_single_number
 
     - pyinstaller -F update_redis.py
     - cp dist/update_redis bin/linux/update_redis
@@ -42,7 +42,7 @@ build-mac:
     - mkdir -p bin/mac
 
     - pyinstaller -F update_single_number.py
-    - cp dist/testagain bin/mac/update_single_number
+    - cp dist/update_single_number bin/mac/update_single_number
 
     - pyinstaller -F update_redis.py
     - cp dist/update_redis bin/mac/update_redis
@@ -64,7 +64,7 @@ build-windows:
     - mkdir -p bin/windows
 
     - pyinstaller -F update_single_number.py
-    - cp dist/testagain.exe bin/windows/update_single_number.exe
+    - cp dist/update_single_number.exe bin/windows/update_single_number.exe
 
     - pyinstaller -F update_redis.py
     - cp dist/update_redis.exe bin/windows/update_redis.exe
