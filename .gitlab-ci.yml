@@ -19,8 +19,8 @@ build-linux:
     - cd IncrementalPackageCheck
     - mkdir -p bin/linux
 
-    - pyinstaller -F testagain.py
-    - cp dist/testagain bin/linux/testagain
+    - pyinstaller -F update_single_number.py
+    - cp dist/testagain bin/linux/update_single_number
 
     - pyinstaller -F update_redis.py
     - cp dist/update_redis bin/linux/update_redis
@@ -41,8 +41,8 @@ build-mac:
     - cd IncrementalPackageCheck
     - mkdir -p bin/mac
 
-    - pyinstaller -F testagain.py
-    - cp dist/testagain bin/mac/testagain
+    - pyinstaller -F update_single_number.py
+    - cp dist/testagain bin/mac/update_single_number
 
     - pyinstaller -F update_redis.py
     - cp dist/update_redis bin/mac/update_redis
@@ -63,8 +63,8 @@ build-windows:
     - cd IncrementalPackageCheck
     - mkdir -p bin/windows
 
-    - pyinstaller -F testagain.py
-    - cp dist/testagain.exe bin/windows/testagain.exe
+    - pyinstaller -F update_single_number.py
+    - cp dist/testagain.exe bin/windows/update_single_number.exe
 
     - pyinstaller -F update_redis.py
     - cp dist/update_redis.exe bin/windows/update_redis.exe
