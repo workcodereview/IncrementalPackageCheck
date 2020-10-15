@@ -263,6 +263,7 @@ if __name__ == '__main__':
         result_total['author'] = single_number_info[single_number]['author']
         result_total['created'] = single_number_info[single_number]['created']
         result_total['summary'] = single_number_info[single_number]['summary']
+        result_total['timestamp'] = begin_time
 
         # 向结果添加单号和版本信息 Android iOS 安装包信息 预测包信息
         result_total['issueid'] = single_number
