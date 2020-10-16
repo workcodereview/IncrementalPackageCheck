@@ -207,19 +207,17 @@ def check_out_index(first_content, second_content):
     else:
         return first_content + second_content
 
+# 判断最大时间戳
 def check_max_timestamp(analysize):
-    current_timestrap = 0  # 标记当前获取到的最大的时间戳
-    current_svn = 0
-    info = {}
-
+    message = {'timestamp': 0, 'svn': 0, 'root': '', 'platform': ''}
     bundle_id = analysize.get_all_aba_id()
     for bundle_info in bundle_id:
-        if int(bundle_info['timestamp']) > current_timestrap:
-            current_timestrap = int(bundle_info['timestamp'])
-            info = bundle_info
-    current_svn = int(info['svn'])
-
-    return current_timestrap, current_svn
+        if int(bundle_info['timestamp']) > message['timestamp']:
+            message['timestamp'] = int(bundle_info['timestamp'])
+            message['svn'] = int(bundle_info['svn'])
+            message['root'] = bundle_info['root']
+            message['platform'] = bundle_info['platform']
+    return message
 
 def check_max_revision(jx3m):
     revision = 0
@@ -237,9 +235,9 @@ if __name__ == '__main__':
     analy = Analy_Plat()
     jx3m = JX3M()
 
-    current_max_timestrap, current_svn = check_max_timestamp(analy)
+    message = check_max_timestamp(analy)
     current_resivion_message = check_max_revision(jx3m)
-    print('[Test]当前bundle信息时间戳current_max_timestrap：' + str(current_max_timestrap) + ' svn版本为: ' + str(current_svn))
+    print('[Test]当前bundle信息时间戳current_max_timestrap：' + str(message['timestamp']) + ' svn版本为: ' + str(message['svn']) +' 平台为: '+str(message['root'])+' '+str(message['platform']))
     print('[Test]当前开始时间为: ', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
 
     # 主干获取bundle测试通过
