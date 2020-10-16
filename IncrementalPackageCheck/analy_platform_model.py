@@ -10,10 +10,7 @@ class Analy_Plat:
         # self._package_type = 'Android'
         self._package_url = analy_platform['package_url']
         self._aba_bundle_url = analy_platform['ababundle_url']
-        self.__reload()
-
-    def __reload(self):
-        self.aba_bundle_id = self.get_all_aba_id() # 获取可以得到aba_bundle内容的id
+        # self.aba_bundle_id = []
 
     # 需要获取当前Android iOS 所有现有的包的信息 aba_bundle_id 取了15条数据
     def get_all_aba_id(self):
@@ -46,11 +43,14 @@ class Analy_Plat:
 
     # 获取对应的aba_bundle信息 需要区分主干 分支 android ios平台
     def get_aba_bundle_dict(self):
+        # 获取可以得到aba_bundle内容的id
+        # self.aba_bundle_id = self.get_all_aba_id()
+
         trunk_path_to_bundle = {}
         txpublish_path_to_bundle = {}
         txhotfix_path_to_bundle = {}
 
-        for value in self.aba_bundle_id:
+        for value in self.get_all_aba_id():
             if value['platform'] not in trunk_path_to_bundle:
                 trunk_path_to_bundle[value['platform']] = {}
             if value['svn'] not in trunk_path_to_bundle[value['platform']]:
@@ -129,7 +129,7 @@ class Analy_Plat:
         if 'iOS' not in txhotfix_path_to_bundle:
             txhotfix_path_to_bundle['iOS'] = {}
 
-        for value in self.aba_bundle_id:
+        for value in self.get_all_aba_id():
             req = requests.get(value['aba_bundle_url'])
             if req.status_code != 200:
                 print(u'aba_bundle.json 获取失败\nstatus_code=%d\n%s' % (req.status_code, aba_bundle_url))
@@ -171,6 +171,7 @@ class Analy_Plat:
                             txhotfix_path_to_bundle[value['platform']][value['svn']][asset_path] = {}
                         txhotfix_path_to_bundle[value['platform']][value['svn']][asset_path] = bundle_info
 
+        print('[Analy]bundle信息获取完成')
         return trunk_path_to_bundle, txpublish_path_to_bundle, txhotfix_path_to_bundle
 
 
