@@ -307,7 +307,7 @@ if __name__ == '__main__':
                     result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'Android')
                     result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'iOS')
 
-                    # jx3m.commit_single_number_assetinfo(single_number, result_total)
+                    jx3m.commit_single_number_assetinfo(single_number, result_total)
                     # print('result_total: ', str(result_total))
                 print('[Test]analy single number end: ', str(begin_time - time.time()))
             else:
