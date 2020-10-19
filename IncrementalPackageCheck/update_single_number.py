@@ -288,8 +288,6 @@ if __name__ == '__main__':
                     # 获取当前单的所有信息 文件对应bundle 或者 没有找到bundle的文件列表
                     result_total = analy_single_number(trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle, root_info)
                     count = count + 1
-                    if count == 162:
-                        print('single number is 162')
 
                     # 存储此单的描述 经办人 创建时间
                     result_total['author'] = single_number_info[single_number]['author']
