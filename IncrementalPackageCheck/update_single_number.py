@@ -308,7 +308,7 @@ if __name__ == '__main__':
                 current_resivion_message = check_max_revision(jx3m)
                 time.sleep(1 * 60)
         else:
-            print('[Test]间隔1分钟后再次尝试获取是否有新包')
+            print('[Test]间隔5分钟后再次尝试获取是否有新包')
             message = check_max_timestamp(analy)
             current_resivion_message = check_max_revision(jx3m)
-            time.sleep(1 * 60)
+            time.sleep(5 * 60)
