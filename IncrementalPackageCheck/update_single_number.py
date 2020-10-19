@@ -243,6 +243,7 @@ if __name__ == '__main__':
 
     last_max_timestrap = 0
     last_resivion_message = 0
+    last_single_length = 0
 
     analy = Analy_Plat()
     jx3m = JX3M()
@@ -250,11 +251,18 @@ if __name__ == '__main__':
     message = check_max_timestamp(analy)
     current_resivion_message = check_max_revision(jx3m)
 
+    # 利用缓存数据获取单号所包含的所有文件
+    single_number_assets, single_number_info = jx3m.get_single_number_path()
+    current_single_length = len(single_number_assets)
+
+
     while True:
         # 有新包数据 有新的提交单信息 有版本号更新比如2.2.2 ---> 2.2.3
-        if last_max_timestrap < message['timestamp'] or last_resivion_message < current_resivion_message:
+        if last_max_timestrap < message['timestamp'] or str(last_resivion_message) < current_resivion_message or current_single_length > last_single_length:
             # 主干获取bundle测试通过
             print('[Test]符合运行条件 尝试获取运行数据')
+            print('[Test]单号长度: ', len(single_number_assets))
+
             trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle = analy.get_aba_bundle_dict1()
             flag = False
 
@@ -271,9 +279,7 @@ if __name__ == '__main__':
                 print('[Test]当前开始时间为: ', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
                 last_max_timestrap = message['timestamp']
                 last_resivion_message = current_resivion_message
-                # 利用缓存数据获取单号所包含的所有文件
-                single_number_assets, single_number_info = jx3m.get_single_number_path()
-                print('[Test]单号长度: ', len(single_number_assets))
+                last_single_length = current_single_length
 
                 count = 0
                 begin_time = time.time()
@@ -281,8 +287,9 @@ if __name__ == '__main__':
                     print('[Test]当前正在分析第' + str(count) + '个提交单,单号为:' + single_number)
                     # 获取当前单的所有信息 文件对应bundle 或者 没有找到bundle的文件列表
                     result_total = analy_single_number(trunk_path_to_bundle, txpublish_path_to_bundle, hotfix_path_to_bundle, root_info)
-
                     count = count + 1
+                    if count == 162:
+                        print('single number is 162')
 
                     # 存储此单的描述 经办人 创建时间
                     result_total['author'] = single_number_info[single_number]['author']
@@ -300,16 +307,20 @@ if __name__ == '__main__':
                     result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'Android')
                     result_total = comcat_result(result_total, '/branches-rel/tx_publish_hotfix', 'iOS')
 
-                    jx3m.commit_single_number_assetinfo(single_number, result_total)
+                    # jx3m.commit_single_number_assetinfo(single_number, result_total)
                     # print('result_total: ', str(result_total))
                 print('[Test]analy single number end: ', str(begin_time - time.time()))
             else:
                 print('[Test]当前最新获取的时间戳'+str(message['timestamp'])+' 版本: '+str(message['svn'])+'平台: '+str(message['root'])+' '+str(message['platform'])+' 数据未准备好,间隔1分钟再次尝试获取是否有数据')
                 message = check_max_timestamp(analy)
                 current_resivion_message = check_max_revision(jx3m)
-                time.sleep(1 * 60)
+                single_number_assets, single_number_info = jx3m.get_single_number_path()
+                current_single_length = len(single_number_assets)
+                time.sleep(2 * 60)
         else:
             print('[Test]间隔5分钟后再次尝试获取是否有新包')
             message = check_max_timestamp(analy)
             current_resivion_message = check_max_revision(jx3m)
+            single_number_assets, single_number_info = jx3m.get_single_number_path()
+            current_single_length = len(single_number_assets)
             time.sleep(5 * 60)
