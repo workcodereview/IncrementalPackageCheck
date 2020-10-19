@@ -20,7 +20,7 @@ jx3m_page_Platform = {
     'txpublish_url': 'http://10.11.10.86/jira/size/{0}/false',
     'color_green': '{{color:#14892c}}{0}{{color}}',
     'color_orige': '{{color:#f79232}}{0}{{color}}',
-    'total_single_number_url': 'http://jx3m.rdev.kingsoft.net:8881/rest/api/2/project/JX3M/versions'
+    'total_single_number_url': 'http://10.11.10.86/jira/release'
 }
 
 # 用于访问qb平台 获取信息

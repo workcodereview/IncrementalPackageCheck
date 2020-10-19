@@ -24,24 +24,16 @@ class JX3M:
         self._single_number_list = self.get_single_number_list()
 
     def get_latest_version(self):
-        version_message = {'version': '', 'released': False, 'userReleaseDate': ''}
         r = requests.get(self._single_number_url, auth=(self._username, self._password))
         data = r.json()
-        for value in data:
-            if 'released' in value and 'userReleaseDate' in value:
-                if not value['released'] and value['name'] != '挂起':
-                    if value['userReleaseDate'] > version_message['userReleaseDate']:
-                        version_message['version'] = value['name']
-                        version_message['released'] = value['released']
-                        version_message['userReleaseDate'] = value['userReleaseDate']
-        return version_message
+        return data['version']
 
     # 获取指定版本的提交单号
     def get_single_number_list(self):
         single_number_list = []
-        if self.version_info['version']:
-            print('[Jira]获取到最新要发的版本号: ',self.version_info['version'])
-            r = requests.get(self._URL_SEARCH, params={'jql': 'type = 提交单 and fixVersion = ' + self.version_info['version'], 'maxResults': 1000},
+        if self.version_info:
+            print('[Jira]获取到最新要发的版本号: ',self.version_info)
+            r = requests.get(self._URL_SEARCH, params={'jql': 'type = 提交单 and fixVersion = ' + self.version_info, 'maxResults': 1000},
                          auth=(self._username, self._password))
             data = r.json()
             if data and data['issues']:

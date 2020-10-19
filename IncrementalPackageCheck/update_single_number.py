@@ -221,10 +221,8 @@ def check_max_timestamp(analysize):
 
 # 判断当前要发布的版本号
 def check_max_revision(jx3m):
-    revision = 0
-    revison_message = jx3m.get_latest_version()
-    revision = revison_message['version']
-    return revision
+    version  = jx3m.get_latest_version()
+    return version
 
 def find_svn_info(bundle_info, revision, current_platform):
     flag = False
@@ -297,7 +295,7 @@ if __name__ == '__main__':
 
                     # 向结果添加单号和版本信息 Android iOS 安装包信息 预测包信息
                     result_total['issueid'] = single_number
-                    result_total['version'] = jx3m.version_info['version']
+                    result_total['version'] = jx3m.version_info
                     result_total = comcat_result(result_total, '/trunk', 'Android')
                     result_total = comcat_result(result_total, '/trunk', 'iOS')
                     result_total = comcat_result(result_total, '/branches-rel/tx_publish', 'Android')
