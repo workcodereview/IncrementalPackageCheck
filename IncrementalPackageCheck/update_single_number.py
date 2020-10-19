@@ -251,6 +251,7 @@ if __name__ == '__main__':
     current_resivion_message = check_max_revision(jx3m)
 
     while True:
+        # 有新包数据 有新的提交单信息 有版本号更新比如2.2.2 ---> 2.2.3
         if last_max_timestrap < message['timestamp'] or last_resivion_message < current_resivion_message:
             # 主干获取bundle测试通过
             print('[Test]符合运行条件 尝试获取运行数据')

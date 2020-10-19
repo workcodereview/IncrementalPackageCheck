@@ -31,7 +31,7 @@ class JX3M:
             if 'released' in value and 'userReleaseDate' in value:
                 if not value['released'] and value['name'] != '挂起':
                     if value['userReleaseDate'] > version_message['userReleaseDate']:
-                        version_message['name'] = value['name']
+                        version_message['version'] = value['name']
                         version_message['released'] = value['released']
                         version_message['userReleaseDate'] = value['userReleaseDate']
         return version_message
