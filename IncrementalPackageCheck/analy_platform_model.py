@@ -134,42 +134,45 @@ class Analy_Plat:
             if req.status_code != 200:
                 print(u'aba_bundle.json 获取失败\nstatus_code=%d\n%s' % (req.status_code, aba_bundle_url))
                 continue
-            aba_content = req.content.decode().split('\n')
-            for line_str in aba_content:
-                line_str = line_str.strip()
-                if line_str == '':
-                    break
-                line_json = json.loads(line_str)
-                bundle_name = re.search('[^\\\\]+$', line_json['bundle']).group()
-                bundle_size = line_json['bundleSize']
-                bundle_info = {
-                    'bundle_name': bundle_name,
-                    'bundle_size': bundle_size,
-                    'package_size': value['pakcagesize'],
-                    'package_timestamp': value['timestamp']
-                }
-                for file_info in line_json['fileList']:
-                    asset_path = file_info['f']
-                    if asset_path == 'ABO':
-                        continue
-                    if value['root'] == 'trunk':
-                        if value['svn'] not in trunk_path_to_bundle[value['platform']]:
-                            trunk_path_to_bundle[value['platform']][value['svn']] = {}
+            try:
+                aba_content = req.content.decode().split('\n')
+                for line_str in aba_content:
+                    line_str = line_str.strip()
+                    if line_str == '':
+                        break
+                    line_json = json.loads(line_str)
+                    bundle_name = re.search('[^\\\\]+$', line_json['bundle']).group()
+                    bundle_size = line_json['bundleSize']
+                    bundle_info = {
+                        'bundle_name': bundle_name,
+                        'bundle_size': bundle_size,
+                        'package_size': value['pakcagesize'],
+                        'package_timestamp': value['timestamp']
+                    }
+                    for file_info in line_json['fileList']:
+                        asset_path = file_info['f']
+                        if asset_path == 'ABO':
+                            continue
+                        if value['root'] == 'trunk':
+                            if value['svn'] not in trunk_path_to_bundle[value['platform']]:
+                                trunk_path_to_bundle[value['platform']][value['svn']] = {}
 
-                        if asset_path not in trunk_path_to_bundle[value['platform']][value['svn']]:
-                            trunk_path_to_bundle[value['platform']][value['svn']][asset_path] = {}
-                        trunk_path_to_bundle[value['platform']][value['svn']][asset_path] = bundle_info
-                    elif value['root'] == 'txpublish':
-                        if value['svn'] not in txpublish_path_to_bundle[value['platform']]:
-                            txpublish_path_to_bundle[value['platform']][value['svn']] = {}
+                            if asset_path not in trunk_path_to_bundle[value['platform']][value['svn']]:
+                                trunk_path_to_bundle[value['platform']][value['svn']][asset_path] = {}
+                            trunk_path_to_bundle[value['platform']][value['svn']][asset_path] = bundle_info
+                        elif value['root'] == 'txpublish':
+                            if value['svn'] not in txpublish_path_to_bundle[value['platform']]:
+                                txpublish_path_to_bundle[value['platform']][value['svn']] = {}
 
-                        if asset_path not in txpublish_path_to_bundle[value['platform']][value['svn']]:
-                            txpublish_path_to_bundle[value['platform']][value['svn']][asset_path] = {}
-                        txpublish_path_to_bundle[value['platform']][value['svn']][asset_path] = bundle_info
-                    elif value['root'] == 'txhotfix':
-                        if asset_path not in txhotfix_path_to_bundle[value['platform']][value['svn']]:
-                            txhotfix_path_to_bundle[value['platform']][value['svn']][asset_path] = {}
-                        txhotfix_path_to_bundle[value['platform']][value['svn']][asset_path] = bundle_info
+                            if asset_path not in txpublish_path_to_bundle[value['platform']][value['svn']]:
+                                txpublish_path_to_bundle[value['platform']][value['svn']][asset_path] = {}
+                            txpublish_path_to_bundle[value['platform']][value['svn']][asset_path] = bundle_info
+                        elif value['root'] == 'txhotfix':
+                            if asset_path not in txhotfix_path_to_bundle[value['platform']][value['svn']]:
+                                txhotfix_path_to_bundle[value['platform']][value['svn']][asset_path] = {}
+                            txhotfix_path_to_bundle[value['platform']][value['svn']][asset_path] = bundle_info
+            except Argument:
+                print('[Analy]代码运行中错误Error: '+str(Argument))
 
         print('[Analy]bundle信息获取完成')
         return trunk_path_to_bundle, txpublish_path_to_bundle, txhotfix_path_to_bundle

@@ -23,21 +23,17 @@ class JX3M:
         self.version_info = self.get_latest_version()
         self._single_number_list = self.get_single_number_list()
 
-
     def get_latest_version(self):
-        now_date = datetime.datetime.today()
         version_message = {'version': '', 'released': False, 'userReleaseDate': ''}
         r = requests.get(self._single_number_url, auth=(self._username, self._password))
         data = r.json()
-        temp_diff = 40000
         for value in data:
             if 'released' in value and 'userReleaseDate' in value:
-                if not value['released']:
-                    current_find_time = datetime.datetime.strptime(value['userReleaseDate'], '%Y-%m-%d')
-                    diffenrence = current_find_time - now_date
-                    if abs(diffenrence.days) < temp_diff:
-                        temp_diff = abs(diffenrence.days)
-                        version_message = {'version': value['name'], 'released': False, 'userReleaseDate': value['userReleaseDate']}
+                if not value['released'] and value['name'] != '挂起':
+                    if value['userReleaseDate'] > version_message['userReleaseDate']:
+                        version_message['name'] = value['name']
+                        version_message['released'] = value['released']
+                        version_message['userReleaseDate'] = value['userReleaseDate']
         return version_message
 
     # 获取指定版本的提交单号
