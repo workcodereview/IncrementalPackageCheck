@@ -36,6 +36,17 @@ def check_asset_bundle(svn_info, asset_path, root_type, platform):
             break
     return result_message
 
+
+# 去除文件夹查询
+def check_dir(path):
+    if path:
+        path_message = path.split('/')
+        length = len(path_message)
+        if '.' in path_message[length - 1]:
+            return True
+        else:
+            return False
+
 # 分析查找每个单的信息 返回整个单所有文件的结果
 def analy_single_number(trunk_bundle, txpublish_bundle, hotfix_bundle, root_message):
     return_result = {'issueid': '', 'version': '', 'total': [], 'data': {}}
@@ -43,6 +54,8 @@ def analy_single_number(trunk_bundle, txpublish_bundle, hotfix_bundle, root_mess
 
     for root_type, file_list in root_message.items():
         for file in file_list:
+            if not check_dir(file):
+                continue
             # print('[Test]当前分析的文件为: ',file)
             android_result = {}
             ios_result = {}
